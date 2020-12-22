@@ -1,0 +1,12 @@
+[paths]
+app_path = "{{ cookiecutter.formal_name }}/app"
+app_packages_path = "{{ cookiecutter.formal_name }}/app_packages"
+support_path = "Support"
+
+icon.16 = "{{ cookiecutter.formal_name }}/Assets.xcassets/{{ cookiecutter.formal_name }}.appiconset/icon-16.png"
+icon.32 = "{{ cookiecutter.formal_name }}/Assets.xcassets/{{ cookiecutter.formal_name }}.appiconset/icon-32.png"
+icon.64 = "{{ cookiecutter.formal_name }}/Assets.xcassets/{{ cookiecutter.formal_name }}.appiconset/icon-64.png"
+icon.128 = "{{ cookiecutter.formal_name }}/Assets.xcassets/{{ cookiecutter.formal_name }}.appiconset/icon-128.png"
+icon.256 = "{{ cookiecutter.formal_name }}/Assets.xcassets/{{ cookiecutter.formal_name }}.appiconset/icon-256.png"
+icon.512 = "{{ cookiecutter.formal_name }}/Assets.xcassets/{{ cookiecutter.formal_name }}.appiconset/icon-512.png"
+icon.1024 = "{{ cookiecutter.formal_name }}/Assets.xcassets/{{ cookiecutter.formal_name }}.appiconset/icon-1024.png"

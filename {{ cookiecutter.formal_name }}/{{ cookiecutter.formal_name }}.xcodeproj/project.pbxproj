@@ -404,7 +404,8 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_ENTITLEMENTS = "{{ cookiecutter.formal_name }}/{{ cookiecutter.app_name }}.entitlements";
-				CODE_SIGN_STYLE = Automatic;
+                CODE_SIGN_IDENTITY = "";
+                CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;

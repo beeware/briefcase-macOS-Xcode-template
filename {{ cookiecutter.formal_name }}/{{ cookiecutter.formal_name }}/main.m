@@ -62,9 +62,6 @@ int main(int argc, char *argv[]) {
             exit(-2);
         }
 
-        // If other modules are using threads, we need to initialize them.
-        PyEval_InitThreads();
-
         // Start bare Python interpreter if requested
         if ( argv[1] != NULL && strcmp(argv[1], "--run-python") == 0 ) {
             newargc = argc - 1;
@@ -79,7 +76,7 @@ int main(int argc, char *argv[]) {
 
         // Construct argv for the interpreter
         python_argv = PyMem_RawMalloc(sizeof(wchar_t*) * argc);
-        
+
         module_name = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"MainModule"];
         python_argv[0] = Py_DecodeLocale([module_name UTF8String], NULL);
         for (i = 1; i < argc; i++) {

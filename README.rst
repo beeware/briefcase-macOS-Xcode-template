@@ -4,6 +4,9 @@ Briefcase macOS Xcode Template
 A `Cookiecutter <https://github.com/cookiecutter/cookiecutter/>`__ template for
 building Python apps that will run under macOS.
 
+**This repository branch contains a template for Python 3.9**.
+Other Python versions are available by cloning other branches of repository.
+
 Using this template
 -------------------
 
@@ -21,7 +24,7 @@ However, if you *do* want use this template directly...
 
 2. Run ``cookiecutter`` on the template::
 
-    $ cookiecutter https://github.com/beeware/briefcase-macOS-Xcode-template --checkout 3.8
+    $ cookiecutter https://github.com/beeware/briefcase-macOS-Xcode-template --checkout 3.9
 
    This will ask you for a number of details of your application, including the
    `name` of your application (which should be a valid PyPI identifier), and
@@ -79,10 +82,11 @@ Alternatively, you could use a cross-platform widget toolkit that supports macOS
 (such as `Toga`_) to provide a GUI for your application.
 
 Regardless of whether you use Toga, or you write an application natively, the
-template project will try to instantiate a ``NSApplication`` instance,
-using a class named ``PythonAppDelegate`` as the App delegate. If a class of
-that name can't be instantiated, the error raised will be logged, and the
-Python interpreter will be shut down.
+template project will try to start a Python module matching the name of the
+``MainModule`` property in the ``Info.plist`` file associated with the project.
+If that module can't be started, any error raised will be logged, and the
+Python interpreter will be shut down. All console output and errors are
+automatically redirected to the macOS system console.
 
 If you have any external library dependencies (like Toga, or anything other
 third-party library), you should install the library code into the
@@ -90,7 +94,7 @@ third-party library), you should install the library code into the
 directory on a desktop Python install.
 
 .. _cookiecutter: https://github.com/cookiecutter/cookiecutter
-.. _Download the Python Apple support package for macOS: https://briefcase-support.org/python?platform=macOS&version=3.8
+.. _Download the Python Apple support package for macOS: https://briefcase-support.org/python?platform=macOS&version=3.9
 .. _Python-Apple-support: https://github.com/beeware/Python-Apple-support
 .. _Rubicon: https://github.com/beeware/rubicon-objc
 .. _Toga: https://beeware.org/project/projects/libraries/toga

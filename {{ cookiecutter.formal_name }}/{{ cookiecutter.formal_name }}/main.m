@@ -62,6 +62,9 @@ int main(int argc, char *argv[]) {
             exit(-2);
         }
 
+        // If other modules are using threads, we need to initialize them.
+        PyEval_InitThreads();
+
         // Start bare Python interpreter if requested
         if ( argv[1] != NULL && strcmp(argv[1], "--run-python") == 0 ) {
             newargc = argc - 1;

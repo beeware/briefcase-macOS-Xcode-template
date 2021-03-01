@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
         putenv("PYTHONUNBUFFERED=1");
 
         // Set the home for the Python interpreter
-        python_home = [NSString stringWithFormat:@"%@/Python", resourcePath, nil];
+        python_home = [NSString stringWithFormat:@"%@/Support/Python/Resources", resourcePath, nil];
         NSLog(@"PythonHome is: %@", python_home);
         wpython_home = Py_DecodeLocale([python_home UTF8String], NULL);
         Py_SetPythonHome(wpython_home);

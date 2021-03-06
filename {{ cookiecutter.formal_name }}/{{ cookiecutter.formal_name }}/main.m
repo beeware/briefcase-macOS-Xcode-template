@@ -62,18 +62,6 @@ int main(int argc, char *argv[]) {
             exit(-2);
         }
 
-        // Start bare Python interpreter if requested
-        if ( argv[1] != NULL && strcmp(argv[1], "--run-python") == 0 ) {
-            newargc = argc - 1;
-            python_argv = PyMem_RawMalloc(sizeof(wchar_t*) * newargc);
-            python_argv[0] = Py_DecodeLocale(argv[0], NULL);
-            for (i = 1; i < newargc; i++) {
-                python_argv[i] = Py_DecodeLocale(argv[i + 1], NULL);
-            }
-            ret = Py_Main(newargc, python_argv);
-            exit(ret);
-        }
-
         // Construct argv for the interpreter
         python_argv = PyMem_RawMalloc(sizeof(wchar_t*) * argc);
 

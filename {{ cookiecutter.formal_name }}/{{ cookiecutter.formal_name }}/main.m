@@ -14,7 +14,6 @@
 
 int main(int argc, char *argv[]) {
     int ret = 0;
-    int newargc = 0;
     unsigned int i;
     NSString *module_name;
     NSString *python_home;

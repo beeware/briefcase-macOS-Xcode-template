@@ -399,7 +399,7 @@
 		0D354FDD2551BFBD009178D1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = x86_64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "{{ cookiecutter.formal_name }}";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -440,7 +440,7 @@
 		0D354FDE2551BFBD009178D1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = x86_64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "{{ cookiecutter.formal_name }}";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";

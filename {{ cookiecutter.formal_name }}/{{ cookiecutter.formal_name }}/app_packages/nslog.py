@@ -83,5 +83,5 @@ class NSLogWriter(io.TextIOBase):
         return UTF16_NATIVE
 
 
-# Replace stdout and stderr with a single NSLogWriter
-sys.stdout = sys.stderr = NSLogWriter()
+# Replace stderr with a single NSLogWriter
+sys.stderr = NSLogWriter()

@@ -17,13 +17,14 @@
 		0D7B44A62555E00500CBC44B /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D3550012551C447009178D1 /* CoreFoundation.framework */; };
 		0D7B44A82555E01500CBC44B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D7B44A72555E01500CBC44B /* Foundation.framework */; };
 		0D7B44BD25561C1800CBC44B /* libbzip2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D267B632554B99D00AC3E85 /* libbzip2.a */; };
-		6093520D25E9D15D00C549F3 /* libffi.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6093520C25E9D14B00C549F3 /* libffi.tbd */; };
 		0D7B44BE25561C1800CBC44B /* libOpenSSL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D267B652554B99D00AC3E85 /* libOpenSSL.a */; };
 		0D7B44BF25561C1800CBC44B /* libPython.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D267B5F255427F200AC3E85 /* libPython.a */; };
 		0D7B44C025561C1800CBC44B /* libxz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D267B642554B99D00AC3E85 /* libxz.a */; };
 		0D7B44C125561C2000CBC44B /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D267B6F2555650500AC3E85 /* libsqlite3.tbd */; };
 		0D7B44C225561C2800CBC44B /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D267B6D255564F100AC3E85 /* libz.tbd */; };
 		0D7B44DA2556C84100CBC44B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D354FD72551BFBD009178D1 /* main.m */; };
+		60775F0E26B4E7E6001E2CE8 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60775F0D26B4E7E6001E2CE8 /* SystemConfiguration.framework */; };
+		6093520D25E9D15D00C549F3 /* libffi.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6093520C25E9D14B00C549F3 /* libffi.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -70,6 +71,7 @@
 		0D7B44A32555DFE300CBC44B /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		0D7B44A72555E01500CBC44B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		0D7B44A925560B2400CBC44B /* Support */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Support; sourceTree = "<group>"; };
+		60775F0D26B4E7E6001E2CE8 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		6093520C25E9D14B00C549F3 /* libffi.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libffi.tbd; path = usr/lib/libffi.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -86,6 +88,7 @@
 				0D7B44C125561C2000CBC44B /* libsqlite3.tbd in Frameworks */,
 				0D7B44A82555E01500CBC44B /* Foundation.framework in Frameworks */,
 				0D7B44BD25561C1800CBC44B /* libbzip2.a in Frameworks */,
+				60775F0E26B4E7E6001E2CE8 /* SystemConfiguration.framework in Frameworks */,
 				0D7B44C225561C2800CBC44B /* libz.tbd in Frameworks */,
 				0D7B44BF25561C1800CBC44B /* libPython.a in Frameworks */,
 				0D354FE62551C1E1009178D1 /* AppKit.framework in Frameworks */,
@@ -132,8 +135,6 @@
 			isa = PBXGroup;
 			children = (
 				6093520C25E9D14B00C549F3 /* libffi.tbd */,
-				0D7B44A72555E01500CBC44B /* Foundation.framework */,
-				0D7B44A32555DFE300CBC44B /* WebKit.framework */,
 				0D267B6F2555650500AC3E85 /* libsqlite3.tbd */,
 				0D267B6D255564F100AC3E85 /* libz.tbd */,
 				0D267B632554B99D00AC3E85 /* libbzip2.a */,
@@ -144,6 +145,9 @@
 				0D354FFF2551C43F009178D1 /* CoreGraphics.framework */,
 				0D354FEE2551C249009178D1 /* Cocoa.framework */,
 				0D354FE52551C1E1009178D1 /* AppKit.framework */,
+				0D7B44A72555E01500CBC44B /* Foundation.framework */,
+				60775F0D26B4E7E6001E2CE8 /* SystemConfiguration.framework */,
+				0D7B44A32555DFE300CBC44B /* WebKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

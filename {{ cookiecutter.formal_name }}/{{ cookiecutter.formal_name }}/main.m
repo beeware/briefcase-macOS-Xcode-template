@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
                     crash_dialog(@"Could not access sys._traceback");
                     exit(-6);
                 }
-                
+
                 // Display stack trace in the crash dialog.
                 crash_dialog([NSString stringWithUTF8String:PyUnicode_AsUTF8(PyObject_Str(traceback))]);
                 exit(-7);
@@ -184,144 +184,30 @@ void crash_dialog(NSString *details) {
     NSApplication *app = [NSApplication sharedApplication];
     [app setActivationPolicy:NSApplicationActivationPolicyRegular];
 
-    // The window is 800x600, in the middle of the main screen.
-    NSRect screen = NSScreen.mainScreen.visibleFrame;
-    NSSize crash_size = NSMakeSize(800, 600);
-    NSWindow *window = [[NSWindow alloc] initWithContentRect:NSMakeRect(
-                                                                (screen.size.width - crash_size.width) / 2,
-                                                                (screen.size.height - crash_size.height) / 2,
-                                                                crash_size.width,
-                                                                crash_size.height)
-                                                   styleMask:NSWindowStyleMaskTitled
-                                                     backing:NSBackingStoreBuffered
-                                                       defer:false];
-    [window setTitle:@"Application has crashed!"];
-
-    NSView *layout_view = [[NSView alloc] init];
-    [layout_view setTranslatesAutoresizingMaskIntoConstraints:false];
-    [window setContentView:layout_view];
-
-    // A text label to introduce the stack trace
-    NSTextField *intro_label = [NSTextField labelWithString:@"Details:"];
-    [intro_label setTranslatesAutoresizingMaskIntoConstraints:false];
-    [layout_view addSubview:intro_label];
+    // Create a stack trace dialog
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setAlertStyle:NSAlertStyleCritical];
+    [alert setMessageText:@"Application has crashed"];
+    [alert setInformativeText:@"An unexpected error occurred. Please see the traceback below for more information."];
 
     // A multiline text widget in a scroll view to contain the stack trace
-    NSScrollView *scroll_panel = [[NSScrollView alloc] init];
+    NSScrollView *scroll_panel = [[NSScrollView alloc] initWithFrame:NSMakeRect(0, 0, 600, 300)];
     [scroll_panel setHasVerticalScroller:true];
     [scroll_panel setHasHorizontalScroller:false];
     [scroll_panel setAutohidesScrollers:false];
     [scroll_panel setBorderType:NSBezelBorder];
-    [scroll_panel setTranslatesAutoresizingMaskIntoConstraints:false];
 
     NSTextView *crash_text = [[NSTextView alloc] init];
     [crash_text setEditable:false];
     [crash_text setSelectable:true];
-    [crash_text setVerticallyResizable:true];
-    [crash_text setHorizontallyResizable:false];
     [crash_text setString:details];
+    [crash_text setVerticallyResizable:true];
+    [crash_text setHorizontallyResizable:true];
     [crash_text setFont:[NSFont fontWithName:@"Menlo" size:12.0]];
-    [crash_text setAutoresizingMask:NSViewWidthSizable];
 
     [scroll_panel setDocumentView:crash_text];
-    [layout_view addSubview:scroll_panel];
+    [alert setAccessoryView:scroll_panel];
 
-    // A button to accept the stack trace and close the app.
-    // The press action on the button is tied to NSApplication terminate:
-    NSButton *accept_button = [NSButton buttonWithTitle:@"OK"
-                                                 target:app
-                                                 action:@selector(terminate:)];
-    [accept_button setBezelStyle:NSRoundedBezelStyle];
-    [accept_button setButtonType:NSMomentaryPushInButton];
-    [accept_button setTranslatesAutoresizingMaskIntoConstraints:false];
-
-    [layout_view addSubview:accept_button];
-
-    // Layout the window
-    // Intro label is attached to the top of the window
-    [layout_view addConstraint:[NSLayoutConstraint constraintWithItem:intro_label
-                                                            attribute:NSLayoutAttributeTop
-                                                            relatedBy:NSLayoutRelationEqual
-                                                               toItem:layout_view
-                                                            attribute:NSLayoutAttributeTop
-                                                           multiplier:1.0
-                                                             constant:5]];
-
-    // Scroller content expands to fill the window
-    [layout_view addConstraint:[NSLayoutConstraint constraintWithItem:scroll_panel
-                                                            attribute:NSLayoutAttributeTop
-                                                            relatedBy:NSLayoutRelationEqual
-                                                               toItem:intro_label
-                                                            attribute:NSLayoutAttributeBottom
-                                                           multiplier:1.0
-                                                             constant:5.0]];
-    [layout_view addConstraint:[NSLayoutConstraint constraintWithItem:accept_button
-                                                            attribute:NSLayoutAttributeTop
-                                                            relatedBy:NSLayoutRelationEqual
-                                                               toItem:scroll_panel
-                                                            attribute:NSLayoutAttributeBottom
-                                                           multiplier:1.0
-                                                             constant:5.0]];
-
-    // Accept button is attached to the bottom of the window
-    [layout_view addConstraint:[NSLayoutConstraint constraintWithItem:layout_view
-                                                            attribute:NSLayoutAttributeBottom
-                                                            relatedBy:NSLayoutRelationEqual
-                                                               toItem:accept_button
-                                                            attribute:NSLayoutAttributeBottom
-                                                           multiplier:1.0
-                                                             constant:5]];
-
-    // Intro label is the same width as the window
-    [layout_view addConstraint:[NSLayoutConstraint constraintWithItem:intro_label
-                                                            attribute:NSLayoutAttributeLeft
-                                                            relatedBy:NSLayoutRelationEqual
-                                                               toItem:layout_view
-                                                            attribute:NSLayoutAttributeLeft
-                                                           multiplier:1.0
-                                                             constant:5]];
-    [layout_view addConstraint:[NSLayoutConstraint constraintWithItem:layout_view
-                                                            attribute:NSLayoutAttributeRight
-                                                            relatedBy:NSLayoutRelationEqual
-                                                               toItem:intro_label
-                                                            attribute:NSLayoutAttributeRight
-                                                           multiplier:1.0
-                                                             constant:5]];
-
-    // Scroll panel is the same width as the window
-    [layout_view addConstraint:[NSLayoutConstraint constraintWithItem:scroll_panel
-                                                            attribute:NSLayoutAttributeLeft
-                                                            relatedBy:NSLayoutRelationEqual
-                                                               toItem:layout_view
-                                                            attribute:NSLayoutAttributeLeft
-                                                           multiplier:1.0
-                                                             constant:5]];
-    [layout_view addConstraint:[NSLayoutConstraint constraintWithItem:layout_view
-                                                            attribute:NSLayoutAttributeRight
-                                                            relatedBy:NSLayoutRelationEqual
-                                                               toItem:scroll_panel
-                                                            attribute:NSLayoutAttributeRight
-                                                           multiplier:1.0
-                                                             constant:5]];
-
-    // Accept button is the same width as the window.
-    [layout_view addConstraint:[NSLayoutConstraint constraintWithItem:accept_button
-                                                            attribute:NSLayoutAttributeLeft
-                                                            relatedBy:NSLayoutRelationEqual
-                                                               toItem:layout_view
-                                                            attribute:NSLayoutAttributeLeft
-                                                           multiplier:1.0
-                                                             constant:5]];
-    [layout_view addConstraint:[NSLayoutConstraint constraintWithItem:layout_view
-                                                            attribute:NSLayoutAttributeRight
-                                                            relatedBy:NSLayoutRelationEqual
-                                                               toItem:accept_button
-                                                            attribute:NSLayoutAttributeRight
-                                                           multiplier:1.0
-                                                             constant:5]];
-
-
-    // Show the crash dialog and run the app that will display it.
-    [window makeKeyAndOrderFront:nil];
-    [app run];
+    // Show the crash dialog
+    [alert runModal];
 }

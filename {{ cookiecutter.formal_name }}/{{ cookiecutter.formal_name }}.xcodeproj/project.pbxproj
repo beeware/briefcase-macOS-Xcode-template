@@ -181,6 +181,7 @@
 		0D354FC02551BFBA009178D1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1220;
 				ORGANIZATIONNAME = "{{ cookiecutter.author }}";
 				TargetAttributes = {

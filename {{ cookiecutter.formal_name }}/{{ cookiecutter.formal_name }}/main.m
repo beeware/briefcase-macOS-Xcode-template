@@ -8,9 +8,6 @@
 #include <Python.h>
 #include <dlfcn.h>
 
-#ifndef DEBUG
-    #define NSLog(...);
-#endif
 
 void crash_dialog(NSString *);
 
@@ -62,8 +59,6 @@ int main(int argc, char *argv[]) {
 
         if (nslog_script == NULL) {
             NSLog(@"Unable to locate NSLog bootstrap script.");
-            crash_dialog(@"Unable to locate NSLog bootstrap script.");
-            exit(-2);
         }
 
         // Construct argv for the interpreter
@@ -78,20 +73,25 @@ int main(int argc, char *argv[]) {
         PySys_SetArgv(argc, python_argv);
 
         @try {
-            NSLog(@"Installing Python NSLog handler...");
-            FILE* fd = fopen(nslog_script, "r");
-            if (fd == NULL) {
-                NSLog(@"Unable to open nslog.py; abort.");
-                crash_dialog(@"Unable to open nslog.py");
-                exit(-1);
-            }
+            if (nslog_script == NULL) {
+                NSLog(@"No logging configuration bootstrap found. stdout/err will not be captured.");
+                NSLog(@"To capture stdout/error, add 'std-nslog' to your app dependencies.");
+            } else {
+                NSLog(@"Installing Python NSLog handler...");
+                FILE *fd = fopen(nslog_script, "r");
+                if (fd == NULL) {
+                    NSLog(@"Unable to open nslog.py; abort.");
+                    crash_dialog(@"Unable to open nslog.py");
+                    exit(-1);
+                }
 
-            ret = PyRun_SimpleFileEx(fd, nslog_script, 1);
-            fclose(fd);
-            if (ret != 0) {
-                NSLog(@"Unable to install Python NSLog handler; abort.");
-                crash_dialog(@"Unable to install Python NSLog handler.");
-                exit(ret);
+                ret = PyRun_SimpleFileEx(fd, nslog_script, 1);
+                fclose(fd);
+                if (ret != 0) {
+                    NSLog(@"Unable to install Python NSLog handler; abort.");
+                    crash_dialog(@"Unable to install Python NSLog handler.");
+                    exit(ret);
+                }
             }
 
             // Start the app module

@@ -74,8 +74,8 @@ int main(int argc, char *argv[]) {
 
         @try {
             if (nslog_script == NULL) {
-                NSLog(@"No logging configuration bootstrap found. stdout/err will not be captured.");
-                NSLog(@"To capture stdout/error, add 'std-nslog' to your app dependencies.");
+                NSLog(@"No Python NSLog handler found. stdout/stderr will not be captured.");
+                NSLog(@"To capture stdout/stderr, add 'std-nslog' to your app dependencies.");
             } else {
                 NSLog(@"Installing Python NSLog handler...");
                 FILE *fd = fopen(nslog_script, "r");

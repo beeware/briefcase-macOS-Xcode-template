@@ -223,6 +223,7 @@ NSString * format_traceback(PyObject *type, PyObject *value, PyObject *traceback
     PyObject *traceback_module;
     PyObject *format_exception;
     PyObject *traceback_unicode;
+    PyObject *inner_traceback;
     
 
     if (traceback == NULL) {
@@ -233,8 +234,9 @@ NSString * format_traceback(PyObject *type, PyObject *value, PyObject *traceback
     // Drop the top two stack frames; these are internal
     // wrapper logic, and not in the control of the user.
     for (int i = 0; i < 2; i++) {
-        if (PyObject_GetAttrString(traceback, "tb_next") != NULL) {
-            traceback = PyObject_GetAttrString(traceback, "tb_next");
+        inner_traceback = PyObject_GetAttrString(traceback, "tb_next")
+        if inner_traceback != NULL) {
+            traceback = inner_traceback;
         }
     }
 

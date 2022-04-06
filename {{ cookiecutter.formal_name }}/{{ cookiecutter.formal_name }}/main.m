@@ -145,12 +145,6 @@ int main(int argc, char *argv[]) {
                 }
 
                 traceback_str = format_traceback(exc_type, exc_value, exc_traceback);
-                
-                if (traceback_str == NULL) {
-                    NSLog(@"Could not format traceback");
-                    crash_dialog(@"Could not format traceback");
-                    exit(-6);
-                }
 
                 // Restore the error state of the interpreter.
                 PyErr_Restore(exc_type, exc_value, exc_traceback);
@@ -160,7 +154,7 @@ int main(int argc, char *argv[]) {
 
                 // Display stack trace in the crash dialog.
                 crash_dialog(traceback_str);
-                exit(-7);
+                exit(-6);
             }
 
         }
@@ -233,7 +227,7 @@ NSString * format_traceback(PyObject *type, PyObject *value, PyObject *traceback
 
     if (traceback == NULL) {
         NSLog(@"Could not retrieve traceback");
-        return NULL;
+        return @"Could not retrieve traceback";
     }
 
     // Drop the top two stack frames; these are internal
@@ -248,7 +242,7 @@ NSString * format_traceback(PyObject *type, PyObject *value, PyObject *traceback
     traceback_module = PyImport_ImportModule("traceback");
     if (traceback_module == NULL) {
         NSLog(@"Could not import traceback");
-        return NULL;
+        return @"Could not import traceback";
     }
 
     format_exception = PyObject_GetAttrString(traceback_module, "format_exception");
@@ -256,11 +250,11 @@ NSString * format_traceback(PyObject *type, PyObject *value, PyObject *traceback
         traceback_list = PyObject_CallFunctionObjArgs(format_exception, type, value, traceback, NULL);
     } else {
         NSLog(@"Could not find 'format_exception' in 'traceback' module");
-        return NULL;
+        return @"Could not find 'format_exception' in 'traceback' module";
     }
     if (traceback_list == NULL) {
         NSLog(@"Could not format traceback");
-        return NULL;
+        return @"Could not format traceback";
     }
 
     traceback_unicode = PyUnicode_Join(PyUnicode_FromString(""), traceback_list);

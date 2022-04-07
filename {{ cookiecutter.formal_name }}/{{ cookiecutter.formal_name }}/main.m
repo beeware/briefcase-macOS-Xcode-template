@@ -54,16 +54,16 @@ int main(int argc, char *argv[]) {
 
         NSLog(@"Initializing Python runtime...");
         Py_Initialize();
-        
-        // Set the name of the python NSLog bootstrap script
-         nslog_script = [
-             [[NSBundle mainBundle] pathForResource:@"app_packages/nslog"
-                                             ofType:@"py"] cStringUsingEncoding:NSUTF8StringEncoding];
 
-         if (nslog_script == NULL) {
-             NSLog(@"Unable to locate NSLog bootstrap script.");
-         }
-        
+        // Set the name of the python NSLog bootstrap script
+        nslog_script = [
+            [[NSBundle mainBundle] pathForResource:@"app_packages/nslog"
+                                            ofType:@"py"] cStringUsingEncoding:NSUTF8StringEncoding];
+
+        if (nslog_script == NULL) {
+            NSLog(@"Unable to locate NSLog bootstrap script.");
+        }
+
         // Construct argv for the interpreter
         python_argv = PyMem_RawMalloc(sizeof(wchar_t*) * argc);
 
@@ -76,28 +76,27 @@ int main(int argc, char *argv[]) {
         PySys_SetArgv(argc, python_argv);
 
         @try {
-
             // Install the nslog script to redirect stdout/stderr if available.
             if (nslog_script == NULL) {
-                 NSLog(@"No Python NSLog handler found. stdout/stderr will not be captured.");
-                 NSLog(@"To capture stdout/stderr, add 'std-nslog' to your app dependencies.");
-             } else {
-                 NSLog(@"Installing Python NSLog handler...");
-                 FILE *fd = fopen(nslog_script, "r");
-                 if (fd == NULL) {
-                     NSLog(@"Unable to open nslog.py; abort.");
-                     crash_dialog(@"Unable to open nslog.py");
-                     exit(-1);
-                 }
+                NSLog(@"No Python NSLog handler found. stdout/stderr will not be captured.");
+                NSLog(@"To capture stdout/stderr, add 'std-nslog' to your app dependencies.");
+            } else {
+                NSLog(@"Installing Python NSLog handler...");
+                FILE *fd = fopen(nslog_script, "r");
+                if (fd == NULL) {
+                    NSLog(@"Unable to open nslog.py; abort.");
+                    crash_dialog(@"Unable to open nslog.py");
+                    exit(-1);
+                }
 
-                 ret = PyRun_SimpleFileEx(fd, nslog_script, 1);
-                 fclose(fd);
-                 if (ret != 0) {
-                     NSLog(@"Unable to install Python NSLog handler; abort.");
-                     crash_dialog(@"Unable to install Python NSLog handler.");
-                     exit(ret);
-                 }
-             }
+                ret = PyRun_SimpleFileEx(fd, nslog_script, 1);
+                fclose(fd);
+                if (ret != 0) {
+                    NSLog(@"Unable to install Python NSLog handler; abort.");
+                    crash_dialog(@"Unable to install Python NSLog handler.");
+                    exit(ret);
+                }
+            }
 
             // Start the app module
             NSLog(@"Running app module: %@", module_name);
@@ -137,7 +136,7 @@ int main(int argc, char *argv[]) {
                 // Retrieve the current error state of the interpreter.
                 PyErr_Fetch(&exc_type, &exc_value, &exc_traceback);
                 PyErr_NormalizeException(&exc_type, &exc_value, &exc_traceback);
-                
+
                 if (exc_traceback == NULL) {
                     NSLog(@"Could not retrieve traceback");
                     crash_dialog(@"Could not retrieve traceback");
@@ -148,7 +147,7 @@ int main(int argc, char *argv[]) {
 
                 // Restore the error state of the interpreter.
                 PyErr_Restore(exc_type, exc_value, exc_traceback);
-                
+
                 // Print exception to stderr.
                 PyErr_Print();
 
@@ -181,6 +180,10 @@ int main(int argc, char *argv[]) {
 }
 
 
+/**
+ * Construct and display a modal dialog to the user that contains
+ * details of an error during application execution (usually a traceback).
+ */
 void crash_dialog(NSString *details) {
     // We've crashed.
     NSApplication *app = [NSApplication sharedApplication];
@@ -214,9 +217,14 @@ void crash_dialog(NSString *details) {
     [alert runModal];
 }
 
-
-NSString * format_traceback(PyObject *type, PyObject *value, PyObject *traceback) {
-    
+/**
+ * Convert a Python traceback object into a user-suitable string, stripping off
+ * stack context that comes from this stub binary.
+ *
+ * If any error occurs processing the traceback, the error message returned
+ * will describe the mode of failure.
+ */
+NSString *format_traceback(PyObject *type, PyObject *value, PyObject *traceback) {
     NSRegularExpression *regex;
     NSString *traceback_str;
     PyObject *traceback_list;
@@ -224,18 +232,12 @@ NSString * format_traceback(PyObject *type, PyObject *value, PyObject *traceback
     PyObject *format_exception;
     PyObject *traceback_unicode;
     PyObject *inner_traceback;
-    
-
-    if (traceback == NULL) {
-        NSLog(@"Could not retrieve traceback");
-        return @"Could not retrieve traceback";
-    }
 
     // Drop the top two stack frames; these are internal
     // wrapper logic, and not in the control of the user.
     for (int i = 0; i < 2; i++) {
-        inner_traceback = PyObject_GetAttrString(traceback, "tb_next")
-        if inner_traceback != NULL) {
+        inner_traceback = PyObject_GetAttrString(traceback, "tb_next");
+        if (inner_traceback != NULL) {
             traceback = inner_traceback;
         }
     }

@@ -10,6 +10,7 @@
 
 
 void crash_dialog(NSString *);
+NSString * format_traceback(PyObject *type, PyObject *value, PyObject *traceback);
 
 int main(int argc, char *argv[]) {
     int ret = 0;
@@ -17,16 +18,18 @@ int main(int argc, char *argv[]) {
     NSString *module_name;
     NSString *python_home;
     NSString *python_path;
+    NSString *traceback_str;
     wchar_t *wpython_home;
-    const char* nslog_script;
     wchar_t** python_argv;
+    const char* nslog_script;
     PyObject *module;
     PyObject *runpy;
     PyObject *runmodule;
     PyObject *runargs;
     PyObject *result;
-    PyObject *sys;
-    PyObject *traceback;
+    PyObject *exc_type;
+    PyObject *exc_value;
+    PyObject *exc_traceback;
 
     @autoreleasepool {
 
@@ -73,6 +76,7 @@ int main(int argc, char *argv[]) {
         PySys_SetArgv(argc, python_argv);
 
         @try {
+            // Install the nslog script to redirect stdout/stderr if available.
             if (nslog_script == NULL) {
                 NSLog(@"No Python NSLog handler found. stdout/stderr will not be captured.");
                 NSLog(@"To capture stdout/stderr, add 'std-nslog' to your app dependencies.");
@@ -125,31 +129,31 @@ int main(int argc, char *argv[]) {
             }
 
             result = PyObject_Call(runmodule, runargs, NULL);
+
             if (result == NULL) {
                 NSLog(@"Application quit abnormally!");
 
-                // Output the current error state of the interpreter.
-                // This will trigger out custom sys.excepthook
-                PyErr_Print();
+                // Retrieve the current error state of the interpreter.
+                PyErr_Fetch(&exc_type, &exc_value, &exc_traceback);
+                PyErr_NormalizeException(&exc_type, &exc_value, &exc_traceback);
 
-                // Retrieve sys._traceback
-                sys = PyImport_ImportModule("sys");
-                if (runpy == NULL) {
-                    NSLog(@"Could not import sys module");
-                    crash_dialog(@"Could not import sys module");
+                if (exc_traceback == NULL) {
+                    NSLog(@"Could not retrieve traceback");
+                    crash_dialog(@"Could not retrieve traceback");
                     exit(-5);
                 }
 
-                traceback = PyObject_GetAttrString(sys, "_traceback");
-                if (traceback == NULL) {
-                    NSLog(@"Could not access sys._traceback");
-                    crash_dialog(@"Could not access sys._traceback");
-                    exit(-6);
-                }
+                traceback_str = format_traceback(exc_type, exc_value, exc_traceback);
+
+                // Restore the error state of the interpreter.
+                PyErr_Restore(exc_type, exc_value, exc_traceback);
+
+                // Print exception to stderr.
+                PyErr_Print();
 
                 // Display stack trace in the crash dialog.
-                crash_dialog([NSString stringWithUTF8String:PyUnicode_AsUTF8(PyObject_Str(traceback))]);
-                exit(-7);
+                crash_dialog(traceback_str);
+                exit(-6);
             }
 
         }
@@ -176,6 +180,10 @@ int main(int argc, char *argv[]) {
 }
 
 
+/**
+ * Construct and display a modal dialog to the user that contains
+ * details of an error during application execution (usually a traceback).
+ */
 void crash_dialog(NSString *details) {
     // We've crashed.
     NSApplication *app = [NSApplication sharedApplication];
@@ -207,4 +215,63 @@ void crash_dialog(NSString *details) {
 
     // Show the crash dialog
     [alert runModal];
+}
+
+/**
+ * Convert a Python traceback object into a user-suitable string, stripping off
+ * stack context that comes from this stub binary.
+ *
+ * If any error occurs processing the traceback, the error message returned
+ * will describe the mode of failure.
+ */
+NSString *format_traceback(PyObject *type, PyObject *value, PyObject *traceback) {
+    NSRegularExpression *regex;
+    NSString *traceback_str;
+    PyObject *traceback_list;
+    PyObject *traceback_module;
+    PyObject *format_exception;
+    PyObject *traceback_unicode;
+    PyObject *inner_traceback;
+
+    // Drop the top two stack frames; these are internal
+    // wrapper logic, and not in the control of the user.
+    for (int i = 0; i < 2; i++) {
+        inner_traceback = PyObject_GetAttrString(traceback, "tb_next");
+        if (inner_traceback != NULL) {
+            traceback = inner_traceback;
+        }
+    }
+
+    // Format the traceback.
+    traceback_module = PyImport_ImportModule("traceback");
+    if (traceback_module == NULL) {
+        NSLog(@"Could not import traceback");
+        return @"Could not import traceback";
+    }
+
+    format_exception = PyObject_GetAttrString(traceback_module, "format_exception");
+    if (format_exception && PyCallable_Check(format_exception)) {
+        traceback_list = PyObject_CallFunctionObjArgs(format_exception, type, value, traceback, NULL);
+    } else {
+        NSLog(@"Could not find 'format_exception' in 'traceback' module");
+        return @"Could not find 'format_exception' in 'traceback' module";
+    }
+    if (traceback_list == NULL) {
+        NSLog(@"Could not format traceback");
+        return @"Could not format traceback";
+    }
+
+    traceback_unicode = PyUnicode_Join(PyUnicode_FromString(""), traceback_list);
+    traceback_str = [NSString stringWithUTF8String:PyUnicode_AsUTF8(PyObject_Str(traceback_unicode))];
+
+    // Take the opportunity to clean up the source path,
+    // so paths only refer to the "app local" path.
+    regex = [NSRegularExpression regularExpressionWithPattern:@"^  File \"/.*/(.*?).app/Contents/Resources/"
+                                                      options:NSRegularExpressionAnchorsMatchLines
+                                                        error:nil];
+    traceback_str = [regex stringByReplacingMatchesInString:traceback_str
+                                                    options:0
+                                                      range:NSMakeRange(0, [traceback_str length])
+                                               withTemplate:@"  File \"$1.app/Contents/Resources/"];
+    return traceback_str;
 }

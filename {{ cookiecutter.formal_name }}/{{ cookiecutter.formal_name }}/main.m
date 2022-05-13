@@ -30,6 +30,7 @@ int main(int argc, char *argv[]) {
     PyObject *exc_type;
     PyObject *exc_value;
     PyObject *exc_traceback;
+    PyObject *systemExit_code;
 
     @autoreleasepool {
 
@@ -131,8 +132,6 @@ int main(int argc, char *argv[]) {
             result = PyObject_Call(runmodule, runargs, NULL);
 
             if (result == NULL) {
-                NSLog(@"Application quit abnormally!");
-
                 // Retrieve the current error state of the interpreter.
                 PyErr_Fetch(&exc_type, &exc_value, &exc_traceback);
                 PyErr_NormalizeException(&exc_type, &exc_value, &exc_traceback);
@@ -143,23 +142,42 @@ int main(int argc, char *argv[]) {
                     exit(-5);
                 }
 
-                traceback_str = format_traceback(exc_type, exc_value, exc_traceback);
+                if (PyErr_GivenExceptionMatches(exc_value, PyExc_SystemExit)) {
+                    systemExit_code = PyObject_GetAttrString(exc_value, "code");
+                    if (systemExit_code == NULL) {
+                        NSLog(@"Could not determine exit code");
+                        ret = -10;
+                    }
+                    else {
+                        ret = (int) PyLong_AsLong(systemExit_code);
+                    }
+                } else {
+                    ret = -6;
+                }
 
-                // Restore the error state of the interpreter.
-                PyErr_Restore(exc_type, exc_value, exc_traceback);
+                if (ret != 0) {
+                    NSLog(@"Application quit abnormally (Exit code %d)!", ret);
 
-                // Print exception to stderr.
-                PyErr_Print();
+                    traceback_str = format_traceback(exc_type, exc_value, exc_traceback);
 
-                // Display stack trace in the crash dialog.
-                crash_dialog(traceback_str);
-                exit(-6);
+                    // Restore the error state of the interpreter.
+                    PyErr_Restore(exc_type, exc_value, exc_traceback);
+
+                    // Print exception to stderr.
+                    // In case of SystemExit, this will call exit()
+                    PyErr_Print();
+
+                    // Display stack trace in the crash dialog.
+                    crash_dialog(traceback_str);
+                    exit(ret);
+                }
             }
 
         }
         @catch (NSException *exception) {
             NSLog(@"Python runtime error: %@", [exception reason]);
             crash_dialog([NSString stringWithFormat:@"Python runtime error: %@", [exception reason]]);
+            ret = -7;
         }
         @finally {
             Py_Finalize();
@@ -172,7 +190,6 @@ int main(int argc, char *argv[]) {
             }
             PyMem_RawFree(python_argv);
         }
-        NSLog(@"Leaving...");
     }
 
     exit(ret);

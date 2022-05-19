@@ -16,18 +16,19 @@ int main(int argc, char *argv[]) {
     int ret = 0;
     PyStatus status;
     PyConfig config;
-    NSString *module_name;
     NSString *python_home;
-    NSString *python_path;
+    NSString *app_module_name;
+    NSString *path;
     NSString *traceback_str;
     wchar_t *wpython_home;
-    wchar_t *wpython_path;
-    wchar_t *wmodule_name;
+    wchar_t *wapp_module_name;
+    wchar_t *wapp_packages_path;
+    wchar_t *wapp_path;
     const char* nslog_script;
+    PyObject *app_module;
     PyObject *module;
-    PyObject *runpy;
-    PyObject *runmodule;
-    PyObject *runargs;
+    PyObject *module_attr;
+    PyObject *method_args;
     PyObject *result;
     PyObject *exc_type;
     PyObject *exc_value;
@@ -57,19 +58,13 @@ int main(int argc, char *argv[]) {
         wpython_home = Py_DecodeLocale([python_home UTF8String], NULL);
         config.home = wpython_home;
 
-        // Set the PYTHONPATH
-        python_path = [NSString stringWithFormat:@"%@/app:%@/app_packages", resourcePath, resourcePath, nil];
-        NSLog(@"PYTHONPATH: %@", python_path);
-        wpython_path = Py_DecodeLocale([python_path UTF8String], NULL);
-        config.pythonpath_env = wpython_path;
-
         // Determine the app module name
-        module_name = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"MainModule"];
-        if (module_name == NULL) {
+        app_module_name = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"MainModule"];
+        if (app_module_name == NULL) {
             NSLog(@"Unable to identify app module name.");
         }
-        wmodule_name = Py_DecodeLocale([module_name UTF8String], NULL);
-        config.run_module = wmodule_name;
+        wapp_module_name = Py_DecodeLocale([app_module_name UTF8String], NULL);
+        config.run_module = wapp_module_name;
 
         NSLog(@"Configure argc/argv...");
         status = PyConfig_SetBytesArgv(&config, argc, argv);
@@ -89,6 +84,47 @@ int main(int argc, char *argv[]) {
                 return status.exitcode;
             }
             Py_ExitStatusException(status);
+        }
+
+        // Isolated Python environments can't read from environment variables,
+        // so we need to manually modify sys.path after the Python environment
+        // has been configured to add the app and app_packages folders.
+        NSLog(@"Adding app and app_packages to sys.path...");
+        module = PyImport_ImportModule("sys");
+        if (module == NULL) {
+            NSLog(@"Could not import sys module");
+            crash_dialog(@"Could not import sys module");
+            exit(-2);
+        }
+        module_attr = PyObject_GetAttrString(module, "path");
+        if (module_attr == NULL) {
+            NSLog(@"Could not access sys.path");
+            crash_dialog(@"Could not access sys.path");
+            exit(-3);
+        }
+
+        // Add app_packages to sys.path
+        path = [NSString stringWithFormat:@"%@/app_packages", resourcePath, nil];
+        NSLog(@"App Packages Path: %@", path);
+        wapp_packages_path = Py_DecodeLocale([path UTF8String], NULL);
+        ret = PyList_Insert(module_attr, 0, PyUnicode_FromWideChar(wapp_packages_path, wcslen(wapp_packages_path)));
+        if (ret != 0)
+        {
+            NSLog(@"Could not add app_packages to sys.path");
+            crash_dialog(@"Could not add app_packages to sys.path");
+            exit(-3);
+        }
+
+        // Add app to sys.path
+        path = [NSString stringWithFormat:@"%@/app", resourcePath, nil];
+        NSLog(@"App Path: %@", path);
+        wapp_path = Py_DecodeLocale([path UTF8String], NULL);
+        ret = PyList_Insert(module_attr, 0, PyUnicode_FromWideChar(wapp_path, wcslen(wapp_path)));
+        if (ret != 0)
+        {
+            NSLog(@"Could not add app_packages to sys.path");
+            crash_dialog(@"Could not add app_packages to sys.path");
+            exit(-3);
         }
 
         @try {
@@ -126,36 +162,36 @@ int main(int argc, char *argv[]) {
             // pymain_run_module() method); we need to re-implement it
             // because we need to be able to inspect the error state of
             // the interpreter, not just the return code of the module.
-            NSLog(@"Running app module: %@", module_name);
-            runpy = PyImport_ImportModule("runpy");
-            if (runpy == NULL) {
+            NSLog(@"Running app module: %@", app_module_name);
+            module = PyImport_ImportModule("runpy");
+            if (module == NULL) {
                 NSLog(@"Could not import runpy module");
                 crash_dialog(@"Could not import runpy module");
                 exit(-2);
             }
 
-            runmodule = PyObject_GetAttrString(runpy, "_run_module_as_main");
-            if (runmodule == NULL) {
+            module_attr = PyObject_GetAttrString(module, "_run_module_as_main");
+            if (module_attr == NULL) {
                 NSLog(@"Could not access runpy._run_module_as_main");
                 crash_dialog(@"Could not access runpy._run_module_as_main");
                 exit(-3);
             }
 
-            module = PyUnicode_FromWideChar(wmodule_name, wcslen(wmodule_name));
-            if (module == NULL) {
+            app_module = PyUnicode_FromWideChar(wapp_module_name, wcslen(wapp_module_name));
+            if (app_module == NULL) {
                 NSLog(@"Could not convert module name to unicode");
                 crash_dialog(@"Could not convert module name to unicode");
                 exit(-3);
             }
 
-            runargs = Py_BuildValue("(Oi)", module, 0);
-            if (runargs == NULL) {
+            method_args = Py_BuildValue("(Oi)", app_module, 0);
+            if (method_args == NULL) {
                 NSLog(@"Could not create arguments for runpy._run_module_as_main");
                 crash_dialog(@"Could not create arguments for runpy._run_module_as_main");
                 exit(-4);
             }
 
-            result = PyObject_Call(runmodule, runargs, NULL);
+            result = PyObject_Call(module_attr, method_args, NULL);
 
             if (result == NULL) {
                 // Retrieve the current error state of the interpreter.
@@ -198,7 +234,6 @@ int main(int argc, char *argv[]) {
                     exit(ret);
                 }
             }
-
         }
         @catch (NSException *exception) {
             NSLog(@"Python runtime error: %@", [exception reason]);
@@ -210,8 +245,9 @@ int main(int argc, char *argv[]) {
         }
 
         PyMem_RawFree(wpython_home);
-        PyMem_RawFree(wpython_path);
-        PyMem_RawFree(wmodule_name);
+        PyMem_RawFree(wapp_module_name);
+        PyMem_RawFree(wapp_packages_path);
+        PyMem_RawFree(wapp_path);
     }
 
     exit(ret);

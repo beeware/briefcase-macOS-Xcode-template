@@ -58,6 +58,7 @@ int main(int argc, char *argv[]) {
         wtmp_str = Py_DecodeLocale([python_home UTF8String], NULL);
         status = PyConfig_SetString(&config, &config.home, wtmp_str);
         if (PyStatus_Exception(status)) {
+            crash_dialog([NSString stringWithFormat:@"Unable to set PYTHONHOME: %s", status.err_msg, nil]);
             PyConfig_Clear(&config);
             Py_ExitStatusException(status);
         }
@@ -71,6 +72,7 @@ int main(int argc, char *argv[]) {
         wapp_module_name = Py_DecodeLocale([app_module_name UTF8String], NULL);
         status = PyConfig_SetString(&config, &config.run_module, wapp_module_name);
         if (PyStatus_Exception(status)) {
+            crash_dialog([NSString stringWithFormat:@"Unable to set app module name: %s", status.err_msg, nil]);
             PyConfig_Clear(&config);
             Py_ExitStatusException(status);
         }
@@ -78,6 +80,7 @@ int main(int argc, char *argv[]) {
         // Read the site config
         status = PyConfig_Read(&config);
         if (PyStatus_Exception(status)) {
+            crash_dialog([NSString stringWithFormat:@"Unable to read site config: %s", status.err_msg, nil]);
             PyConfig_Clear(&config);
             Py_ExitStatusException(status);
         }
@@ -90,6 +93,7 @@ int main(int argc, char *argv[]) {
         // wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         // status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
         // if (PyStatus_Exception(status)) {
+        //     crash_dialog([NSString stringWithFormat:@"Unable to set .zip form of stdlib path: %s", status.err_msg, nil]);
         //     PyConfig_Clear(&config);
         //     Py_ExitStatusException(status);
         // }
@@ -101,6 +105,7 @@ int main(int argc, char *argv[]) {
         wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
         if (PyStatus_Exception(status)) {
+            crash_dialog([NSString stringWithFormat:@"Unable to set unpacked form of stdlib path: %s", status.err_msg, nil]);
             PyConfig_Clear(&config);
             Py_ExitStatusException(status);
         }
@@ -112,6 +117,7 @@ int main(int argc, char *argv[]) {
         // wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         // status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
         // if (PyStatus_Exception(status)) {
+        //     crash_dialog([NSString stringWithFormat:@"Unable to set stdlib binary module path: %s", status.err_msg, nil]);
         //     PyConfig_Clear(&config);
         //     Py_ExitStatusException(status);
         // }
@@ -123,6 +129,7 @@ int main(int argc, char *argv[]) {
         wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
         if (PyStatus_Exception(status)) {
+            crash_dialog([NSString stringWithFormat:@"Unable to set app packages path: %s", status.err_msg, nil]);
             PyConfig_Clear(&config);
             Py_ExitStatusException(status);
         }
@@ -134,6 +141,7 @@ int main(int argc, char *argv[]) {
         wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
         if (PyStatus_Exception(status)) {
+            crash_dialog([NSString stringWithFormat:@"Unable to set app path: %s", status.err_msg, nil]);
             PyConfig_Clear(&config);
             Py_ExitStatusException(status);
         }
@@ -142,6 +150,7 @@ int main(int argc, char *argv[]) {
         NSLog(@"Configure argc/argv...");
         status = PyConfig_SetBytesArgv(&config, argc, argv);
         if (PyStatus_Exception(status)) {
+            crash_dialog([NSString stringWithFormat:@"Unable to configured argc/argv: %s", status.err_msg, nil]);
             PyConfig_Clear(&config);
             Py_ExitStatusException(status);
         }
@@ -149,6 +158,7 @@ int main(int argc, char *argv[]) {
         NSLog(@"Initializing Python runtime...");
         status = Py_InitializeFromConfig(&config);
         if (PyStatus_Exception(status)) {
+            crash_dialog([NSString stringWithFormat:@"Unable to initialize Python interpreter: %s", status.err_msg, nil]);
             PyConfig_Clear(&config);
             Py_ExitStatusException(status);
         }
@@ -167,7 +177,6 @@ int main(int argc, char *argv[]) {
                 NSLog(@"Installing Python NSLog handler...");
                 FILE *fd = fopen(nslog_script, "r");
                 if (fd == NULL) {
-                    NSLog(@"Unable to open nslog.py; abort.");
                     crash_dialog(@"Unable to open nslog.py");
                     exit(-1);
                 }
@@ -175,8 +184,7 @@ int main(int argc, char *argv[]) {
                 ret = PyRun_SimpleFileEx(fd, nslog_script, 1);
                 fclose(fd);
                 if (ret != 0) {
-                    NSLog(@"Unable to install Python NSLog handler; abort.");
-                    crash_dialog(@"Unable to install Python NSLog handler.");
+                    crash_dialog(@"Unable to install Python NSLog handler");
                     exit(ret);
                 }
             }
@@ -191,28 +199,24 @@ int main(int argc, char *argv[]) {
             NSLog(@"Running app module: %@", app_module_name);
             module = PyImport_ImportModule("runpy");
             if (module == NULL) {
-                NSLog(@"Could not import runpy module");
                 crash_dialog(@"Could not import runpy module");
                 exit(-2);
             }
 
             module_attr = PyObject_GetAttrString(module, "_run_module_as_main");
             if (module_attr == NULL) {
-                NSLog(@"Could not access runpy._run_module_as_main");
                 crash_dialog(@"Could not access runpy._run_module_as_main");
                 exit(-3);
             }
 
             app_module = PyUnicode_FromWideChar(wapp_module_name, wcslen(wapp_module_name));
             if (app_module == NULL) {
-                NSLog(@"Could not convert module name to unicode");
                 crash_dialog(@"Could not convert module name to unicode");
                 exit(-3);
             }
 
             method_args = Py_BuildValue("(Oi)", app_module, 0);
             if (method_args == NULL) {
-                NSLog(@"Could not create arguments for runpy._run_module_as_main");
                 crash_dialog(@"Could not create arguments for runpy._run_module_as_main");
                 exit(-4);
             }
@@ -225,7 +229,6 @@ int main(int argc, char *argv[]) {
                 PyErr_NormalizeException(&exc_type, &exc_value, &exc_traceback);
 
                 if (exc_traceback == NULL) {
-                    NSLog(@"Could not retrieve traceback");
                     crash_dialog(@"Could not retrieve traceback");
                     exit(-5);
                 }
@@ -262,7 +265,6 @@ int main(int argc, char *argv[]) {
             }
         }
         @catch (NSException *exception) {
-            NSLog(@"Python runtime error: %@", [exception reason]);
             crash_dialog([NSString stringWithFormat:@"Python runtime error: %@", [exception reason]]);
             ret = -7;
         }
@@ -283,7 +285,10 @@ int main(int argc, char *argv[]) {
  * details of an error during application execution (usually a traceback).
  */
 void crash_dialog(NSString *details) {
-    // We've crashed.
+    // Write the error to the log
+    NSLog(@"%@", details);
+
+    // Obtain the app instance (starting it if necessary) so that we can show an error dialog
     NSApplication *app = [NSApplication sharedApplication];
     [app setActivationPolicy:NSApplicationActivationPolicyRegular];
 

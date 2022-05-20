@@ -20,10 +20,8 @@ int main(int argc, char *argv[]) {
     NSString *app_module_name;
     NSString *path;
     NSString *traceback_str;
-    wchar_t *wpython_home;
     wchar_t *wapp_module_name;
-    wchar_t *wapp_packages_path;
-    wchar_t *wapp_path;
+    wchar_t *wtmp_str;
     const char* nslog_script;
     PyObject *app_module;
     PyObject *module;
@@ -51,12 +49,19 @@ int main(int argc, char *argv[]) {
         // Don't write bytecode; we can't modify the app bundle
         // after it has been signed.
         config.write_bytecode = 0;
+        // Isolated apps need to set the full PYTHONPATH manually.
+        config.module_search_paths_set = 1;
 
         // Set the home for the Python interpreter
         python_home = [NSString stringWithFormat:@"%@/Support/Python/Resources", resourcePath, nil];
         NSLog(@"PythonHome: %@", python_home);
-        wpython_home = Py_DecodeLocale([python_home UTF8String], NULL);
-        config.home = wpython_home;
+        wtmp_str = Py_DecodeLocale([python_home UTF8String], NULL);
+        status = PyConfig_SetString(&config, &config.home, wtmp_str);
+        if (PyStatus_Exception(status)) {
+            PyConfig_Clear(&config);
+            Py_ExitStatusException(status);
+        }
+        PyMem_RawFree(wtmp_str);
 
         // Determine the app module name
         app_module_name = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"MainModule"];
@@ -64,15 +69,80 @@ int main(int argc, char *argv[]) {
             NSLog(@"Unable to identify app module name.");
         }
         wapp_module_name = Py_DecodeLocale([app_module_name UTF8String], NULL);
-        config.run_module = wapp_module_name;
+        status = PyConfig_SetString(&config, &config.run_module, wapp_module_name);
+        if (PyStatus_Exception(status)) {
+            PyConfig_Clear(&config);
+            Py_ExitStatusException(status);
+        }
+
+        // Read the site config
+        status = PyConfig_Read(&config);
+        if (PyStatus_Exception(status)) {
+            PyConfig_Clear(&config);
+            Py_ExitStatusException(status);
+        }
+
+        // Set the full module path. This includes the stdlib, site-packages, and app code.
+        NSLog(@"PYTHONPATH:");
+        // // The .zip form of the stdlib
+        // path = [NSString stringWithFormat:@"%@/Support/Python/Resources/lib/python311.zip", resourcePath, nil];
+        // NSLog(@"- %@", path);
+        // wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
+        // status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
+        // if (PyStatus_Exception(status)) {
+        //     PyConfig_Clear(&config);
+        //     Py_ExitStatusException(status);
+        // }
+        // PyMem_RawFree(wtmp_str);
+
+        // The unpacked form of the stdlib
+        path = [NSString stringWithFormat:@"%@/Support/Python/Resources/lib/python3.11", resourcePath, nil];
+        NSLog(@"- %@", path);
+        wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
+        status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
+        if (PyStatus_Exception(status)) {
+            PyConfig_Clear(&config);
+            Py_ExitStatusException(status);
+        }
+        PyMem_RawFree(wtmp_str);
+
+        // // Add the stdlib binary modules path
+        // path = [NSString stringWithFormat:@"%@/Support/Python/Resources/lib/python3.11/lib-dynload", resourcePath, nil];
+        // NSLog(@"- %@", path);
+        // wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
+        // status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
+        // if (PyStatus_Exception(status)) {
+        //     PyConfig_Clear(&config);
+        //     Py_ExitStatusException(status);
+        // }
+        // PyMem_RawFree(wtmp_str);
+
+        // Add the app_packages path
+        path = [NSString stringWithFormat:@"%@/app_packages", resourcePath, nil];
+        NSLog(@"- %@", path);
+        wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
+        status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
+        if (PyStatus_Exception(status)) {
+            PyConfig_Clear(&config);
+            Py_ExitStatusException(status);
+        }
+        PyMem_RawFree(wtmp_str);
+
+        // Add the app path
+        path = [NSString stringWithFormat:@"%@/app", resourcePath, nil];
+        NSLog(@"- %@", path);
+        wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
+        status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
+        if (PyStatus_Exception(status)) {
+            PyConfig_Clear(&config);
+            Py_ExitStatusException(status);
+        }
+        PyMem_RawFree(wtmp_str);
 
         NSLog(@"Configure argc/argv...");
         status = PyConfig_SetBytesArgv(&config, argc, argv);
         if (PyStatus_Exception(status)) {
             PyConfig_Clear(&config);
-            if (PyStatus_IsExit(status)) {
-                return status.exitcode;
-            }
             Py_ExitStatusException(status);
         }
 
@@ -80,51 +150,7 @@ int main(int argc, char *argv[]) {
         status = Py_InitializeFromConfig(&config);
         if (PyStatus_Exception(status)) {
             PyConfig_Clear(&config);
-            if (PyStatus_IsExit(status)) {
-                return status.exitcode;
-            }
             Py_ExitStatusException(status);
-        }
-
-        // Isolated Python environments can't read from environment variables,
-        // so we need to manually modify sys.path after the Python environment
-        // has been configured to add the app and app_packages folders.
-        NSLog(@"Adding app and app_packages to sys.path...");
-        module = PyImport_ImportModule("sys");
-        if (module == NULL) {
-            NSLog(@"Could not import sys module");
-            crash_dialog(@"Could not import sys module");
-            exit(-2);
-        }
-        module_attr = PyObject_GetAttrString(module, "path");
-        if (module_attr == NULL) {
-            NSLog(@"Could not access sys.path");
-            crash_dialog(@"Could not access sys.path");
-            exit(-3);
-        }
-
-        // Add app_packages to sys.path
-        path = [NSString stringWithFormat:@"%@/app_packages", resourcePath, nil];
-        NSLog(@"App Packages Path: %@", path);
-        wapp_packages_path = Py_DecodeLocale([path UTF8String], NULL);
-        ret = PyList_Insert(module_attr, 0, PyUnicode_FromWideChar(wapp_packages_path, wcslen(wapp_packages_path)));
-        if (ret != 0)
-        {
-            NSLog(@"Could not add app_packages to sys.path");
-            crash_dialog(@"Could not add app_packages to sys.path");
-            exit(-3);
-        }
-
-        // Add app to sys.path
-        path = [NSString stringWithFormat:@"%@/app", resourcePath, nil];
-        NSLog(@"App Path: %@", path);
-        wapp_path = Py_DecodeLocale([path UTF8String], NULL);
-        ret = PyList_Insert(module_attr, 0, PyUnicode_FromWideChar(wapp_path, wcslen(wapp_path)));
-        if (ret != 0)
-        {
-            NSLog(@"Could not add app_packages to sys.path");
-            crash_dialog(@"Could not add app_packages to sys.path");
-            exit(-3);
         }
 
         @try {
@@ -244,10 +270,7 @@ int main(int argc, char *argv[]) {
             Py_Finalize();
         }
 
-        PyMem_RawFree(wpython_home);
         PyMem_RawFree(wapp_module_name);
-        PyMem_RawFree(wapp_packages_path);
-        PyMem_RawFree(wapp_path);
     }
 
     exit(ret);

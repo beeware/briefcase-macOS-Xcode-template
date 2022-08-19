@@ -12,12 +12,8 @@
 		0D354FD22551BFBD009178D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D354FD12551BFBD009178D1 /* Assets.xcassets */; };
 		0D354FE62551C1E1009178D1 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D354FE52551C1E1009178D1 /* AppKit.framework */; };
 		0D354FEF2551C249009178D1 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D354FEE2551C249009178D1 /* Cocoa.framework */; };
-		0D3550002551C43F009178D1 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D354FFF2551C43F009178D1 /* CoreGraphics.framework */; };
-		0D7B44A42555DFE300CBC44B /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D7B44A32555DFE300CBC44B /* WebKit.framework */; };
-		0D7B44A62555E00500CBC44B /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D3550012551C447009178D1 /* CoreFoundation.framework */; };
 		0D7B44A82555E01500CBC44B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D7B44A72555E01500CBC44B /* Foundation.framework */; };
 		0D7B44DA2556C84100CBC44B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D354FD72551BFBD009178D1 /* main.m */; };
-		60775F0E26B4E7E6001E2CE8 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60775F0D26B4E7E6001E2CE8 /* SystemConfiguration.framework */; };
 		60A04BBF28AF5E7400DAA9E5 /* python-stdlib in Resources */ = {isa = PBXBuildFile; fileRef = 60A04BBE28AF5E7400DAA9E5 /* python-stdlib */; };
 		60A04BC028AF5EC000DAA9E5 /* Python.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60A04BBC28AF5E6900DAA9E5 /* Python.xcframework */; };
 /* End PBXBuildFile section */
@@ -45,11 +41,7 @@
 		0D354FD92551BFBD009178D1 /* {{ cookiecutter.app_name }}.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = {{ cookiecutter.app_name }}.entitlements; sourceTree = "<group>"; };
 		0D354FE52551C1E1009178D1 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		0D354FEE2551C249009178D1 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		0D354FFF2551C43F009178D1 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		0D3550012551C447009178D1 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
-		0D7B44A32555DFE300CBC44B /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		0D7B44A72555E01500CBC44B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		60775F0D26B4E7E6001E2CE8 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		60A04BBC28AF5E6900DAA9E5 /* Python.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Python.xcframework; sourceTree = "<group>"; };
 		60A04BBE28AF5E7400DAA9E5 /* python-stdlib */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "python-stdlib"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -61,12 +53,8 @@
 			files = (
 				0D354FE62551C1E1009178D1 /* AppKit.framework in Frameworks */,
 				0D354FEF2551C249009178D1 /* Cocoa.framework in Frameworks */,
-				0D7B44A62555E00500CBC44B /* CoreFoundation.framework in Frameworks */,
 				60A04BC028AF5EC000DAA9E5 /* Python.xcframework in Frameworks */,
-				0D3550002551C43F009178D1 /* CoreGraphics.framework in Frameworks */,
 				0D7B44A82555E01500CBC44B /* Foundation.framework in Frameworks */,
-				60775F0E26B4E7E6001E2CE8 /* SystemConfiguration.framework in Frameworks */,
-				0D7B44A42555DFE300CBC44B /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,11 +97,7 @@
 			children = (
 				0D354FE52551C1E1009178D1 /* AppKit.framework */,
 				0D354FEE2551C249009178D1 /* Cocoa.framework */,
-				0D3550012551C447009178D1 /* CoreFoundation.framework */,
-				0D354FFF2551C43F009178D1 /* CoreGraphics.framework */,
 				0D7B44A72555E01500CBC44B /* Foundation.framework */,
-				60775F0D26B4E7E6001E2CE8 /* SystemConfiguration.framework */,
-				0D7B44A32555DFE300CBC44B /* WebKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -138,6 +122,7 @@
 				0D354FC52551BFBA009178D1 /* Frameworks */,
 				0D354FC62551BFBA009178D1 /* Resources */,
 				0D7B44EB2556C8B800CBC44B /* Embed App Extensions */,
+				60A04BC128AF640400DAA9E5 /* Sign Python Binary Modules */,
 			);
 			buildRules = (
 			);
@@ -194,6 +179,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		60A04BC128AF640400DAA9E5 /* Sign Python Binary Modules */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Sign Python Binary Modules";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\nfor binmodule in $( find \"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/python-stdlib/lib-dynload\" -name \"*.so\" ); do\n    /usr/bin/codesign --force --sign \"$CODE_SIGN_IDENTITY\" -o runtime --timestamp=none --preserve-metadata=identifier,entitlements,flags --generate-entitlement-der $binmodule \ndone\nfor binmodule in $( find \"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/app\" -name \"*.so\" ); do\n    /usr/bin/codesign --force --sign \"$CODE_SIGN_IDENTITY\" -o runtime --timestamp=none --preserve-metadata=identifier,entitlements,flags --generate-entitlement-der $binmodule \ndone\nfor binmodule in $( find \"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/app_packages\" -name \"*.so\" ); do\n    /usr/bin/codesign --force --sign \"$CODE_SIGN_IDENTITY\" -o runtime --timestamp=none --preserve-metadata=identifier,entitlements,flags --generate-entitlement-der $binmodule \ndone\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0D354FC42551BFBA009178D1 /* Sources */ = {

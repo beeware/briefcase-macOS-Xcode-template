@@ -16,17 +16,10 @@
 		0D7B44A42555DFE300CBC44B /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D7B44A32555DFE300CBC44B /* WebKit.framework */; };
 		0D7B44A62555E00500CBC44B /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D3550012551C447009178D1 /* CoreFoundation.framework */; };
 		0D7B44A82555E01500CBC44B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D7B44A72555E01500CBC44B /* Foundation.framework */; };
-		0D7B44C125561C2000CBC44B /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D267B6F2555650500AC3E85 /* libsqlite3.tbd */; };
-		0D7B44C225561C2800CBC44B /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D267B6D255564F100AC3E85 /* libz.tbd */; };
 		0D7B44DA2556C84100CBC44B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D354FD72551BFBD009178D1 /* main.m */; };
-		6011C1E928224C1600B4605F /* BZip2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6011C1E828224C1600B4605F /* BZip2.xcframework */; };
-		6011C1EE28224C2700B4605F /* XZ.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6011C1EB28224C2700B4605F /* XZ.xcframework */; };
-		6011C1F028224C2700B4605F /* Python.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6011C1EC28224C2700B4605F /* Python.xcframework */; };
-		6011C1F228224C2700B4605F /* OpenSSL.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6011C1ED28224C2700B4605F /* OpenSSL.xcframework */; };
-		6011C21E2823A52D00B4605F /* libncurses.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6011C21D2823A51A00B4605F /* libncurses.tbd */; };
-		6011C2202823A57E00B4605F /* libpanel.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6011C21F2823A56100B4605F /* libpanel.tbd */; };
 		60775F0E26B4E7E6001E2CE8 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60775F0D26B4E7E6001E2CE8 /* SystemConfiguration.framework */; };
-		6093520D25E9D15D00C549F3 /* libffi.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6093520C25E9D14B00C549F3 /* libffi.tbd */; };
+		60A04BBF28AF5E7400DAA9E5 /* python-stdlib in Resources */ = {isa = PBXBuildFile; fileRef = 60A04BBE28AF5E7400DAA9E5 /* python-stdlib */; };
+		60A04BC028AF5EC000DAA9E5 /* Python.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60A04BBC28AF5E6900DAA9E5 /* Python.xcframework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -45,8 +38,6 @@
 /* Begin PBXFileReference section */
 		0D267B692554BB1800AC3E85 /* app_packages */ = {isa = PBXFileReference; lastKnownFileType = folder; path = app_packages; sourceTree = "<group>"; };
 		0D267B6A2554BB1800AC3E85 /* app */ = {isa = PBXFileReference; lastKnownFileType = folder; path = app; sourceTree = "<group>"; };
-		0D267B6D255564F100AC3E85 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		0D267B6F2555650500AC3E85 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		0D354FC82551BFBA009178D1 /* {{ cookiecutter.formal_name }}.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "{{ cookiecutter.formal_name }}.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D354FD12551BFBD009178D1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0D354FD62551BFBD009178D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -58,15 +49,9 @@
 		0D3550012551C447009178D1 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		0D7B44A32555DFE300CBC44B /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		0D7B44A72555E01500CBC44B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		0D7B44A925560B2400CBC44B /* Support */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Support; sourceTree = "<group>"; };
-		6011C1E828224C1600B4605F /* BZip2.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BZip2.xcframework; path = Support/BZip2.xcframework; sourceTree = "<group>"; };
-		6011C1EB28224C2700B4605F /* XZ.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = XZ.xcframework; path = Support/XZ.xcframework; sourceTree = "<group>"; };
-		6011C1EC28224C2700B4605F /* Python.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Python.xcframework; path = Support/Python.xcframework; sourceTree = "<group>"; };
-		6011C1ED28224C2700B4605F /* OpenSSL.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = OpenSSL.xcframework; path = Support/OpenSSL.xcframework; sourceTree = "<group>"; };
-		6011C21D2823A51A00B4605F /* libncurses.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libncurses.tbd; path = usr/lib/libncurses.tbd; sourceTree = SDKROOT; };
-		6011C21F2823A56100B4605F /* libpanel.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libpanel.tbd; path = usr/lib/libpanel.tbd; sourceTree = SDKROOT; };
 		60775F0D26B4E7E6001E2CE8 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		6093520C25E9D14B00C549F3 /* libffi.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libffi.tbd; path = usr/lib/libffi.tbd; sourceTree = SDKROOT; };
+		60A04BBC28AF5E6900DAA9E5 /* Python.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Python.xcframework; sourceTree = "<group>"; };
+		60A04BBE28AF5E7400DAA9E5 /* python-stdlib */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "python-stdlib"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,21 +60,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				0D354FE62551C1E1009178D1 /* AppKit.framework in Frameworks */,
-				6011C1E928224C1600B4605F /* BZip2.xcframework in Frameworks */,
 				0D354FEF2551C249009178D1 /* Cocoa.framework in Frameworks */,
 				0D7B44A62555E00500CBC44B /* CoreFoundation.framework in Frameworks */,
+				60A04BC028AF5EC000DAA9E5 /* Python.xcframework in Frameworks */,
 				0D3550002551C43F009178D1 /* CoreGraphics.framework in Frameworks */,
 				0D7B44A82555E01500CBC44B /* Foundation.framework in Frameworks */,
-				6093520D25E9D15D00C549F3 /* libffi.tbd in Frameworks */,
-				6011C21E2823A52D00B4605F /* libncurses.tbd in Frameworks */,
-				6011C2202823A57E00B4605F /* libpanel.tbd in Frameworks */,
-				0D7B44C125561C2000CBC44B /* libsqlite3.tbd in Frameworks */,
-				0D7B44C225561C2800CBC44B /* libz.tbd in Frameworks */,
-				6011C1F228224C2700B4605F /* OpenSSL.xcframework in Frameworks */,
-				6011C1F028224C2700B4605F /* Python.xcframework in Frameworks */,
 				60775F0E26B4E7E6001E2CE8 /* SystemConfiguration.framework in Frameworks */,
 				0D7B44A42555DFE300CBC44B /* WebKit.framework in Frameworks */,
-				6011C1EE28224C2700B4605F /* XZ.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,8 +76,8 @@
 		0D354FBF2551BFBA009178D1 = {
 			isa = PBXGroup;
 			children = (
-				0D7B44A925560B2400CBC44B /* Support */,
-				0D354FCA2551BFBA009178D1 /* {{ cookiecutter.formal_name }} */,
+				60A04BBB28AF5E1000DAA9E5 /* {{ cookiecutter.formal_name }} */,
+				0D354FCA2551BFBA009178D1 /* Testbed */,
 				0D354FC92551BFBA009178D1 /* Products */,
 				0D354FE42551C1E1009178D1 /* Frameworks */,
 			);
@@ -131,23 +108,23 @@
 			isa = PBXGroup;
 			children = (
 				0D354FE52551C1E1009178D1 /* AppKit.framework */,
-				6011C1E828224C1600B4605F /* BZip2.xcframework */,
 				0D354FEE2551C249009178D1 /* Cocoa.framework */,
 				0D3550012551C447009178D1 /* CoreFoundation.framework */,
 				0D354FFF2551C43F009178D1 /* CoreGraphics.framework */,
 				0D7B44A72555E01500CBC44B /* Foundation.framework */,
-				6093520C25E9D14B00C549F3 /* libffi.tbd */,
-				6011C21D2823A51A00B4605F /* libncurses.tbd */,
-				6011C21F2823A56100B4605F /* libpanel.tbd */,
-				0D267B6F2555650500AC3E85 /* libsqlite3.tbd */,
-				0D267B6D255564F100AC3E85 /* libz.tbd */,
-				6011C1ED28224C2700B4605F /* OpenSSL.xcframework */,
-				6011C1EC28224C2700B4605F /* Python.xcframework */,
 				60775F0D26B4E7E6001E2CE8 /* SystemConfiguration.framework */,
 				0D7B44A32555DFE300CBC44B /* WebKit.framework */,
-				6011C1EB28224C2700B4605F /* XZ.xcframework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		60A04BBB28AF5E1000DAA9E5 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				60A04BBE28AF5E7400DAA9E5 /* python-stdlib */,
+				60A04BBC28AF5E6900DAA9E5 /* Python.xcframework */,
+			);
+			path = Support;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -157,7 +134,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0D354FDC2551BFBD009178D1 /* Build configuration list for PBXNativeTarget "{{ cookiecutter.formal_name }}" */;
 			buildPhases = (
-				0D7B44A12555901E00CBC44B /* Refresh Python Source */,
 				0D354FC42551BFBA009178D1 /* Sources */,
 				0D354FC52551BFBA009178D1 /* Frameworks */,
 				0D354FC62551BFBA009178D1 /* Resources */,
@@ -213,31 +189,11 @@
 				0D354FD22551BFBD009178D1 /* Assets.xcassets in Resources */,
 				0D267B6C2554BB1800AC3E85 /* app in Resources */,
 				0D267B6B2554BB1800AC3E85 /* app_packages in Resources */,
+				60A04BBF28AF5E7400DAA9E5 /* python-stdlib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		0D7B44A12555901E00CBC44B /* Refresh Python Source */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Refresh Python Source";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "mkdir -p \"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/Support/Python/Resources\"\nrsync -pvtrL --exclude .hg --exclude .svn --exclude .git \"$PROJECT_DIR/Support/Python/Resources/lib\" \"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/Support/Python/Resources\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0D354FC42551BFBA009178D1 /* Sources */ = {
@@ -309,6 +265,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "{{ cookiecutter.formal_name }}";
 				SDKROOT = macosx;
 			};

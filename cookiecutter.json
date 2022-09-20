@@ -6,5 +6,9 @@
     "bundle": "com.example",
     "version": "1.0",
     "build": "1",
-    "document_types": {}
+    "document_types": {},
+    "python_version": "3.X.0",
+    "_extensions": [
+        "briefcase.integrations.cookiecutter.PythonVersionExtension"
+    ]
 }

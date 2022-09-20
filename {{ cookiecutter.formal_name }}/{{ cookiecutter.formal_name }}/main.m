@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
         // Set the full module path. This includes the stdlib, site-packages, and app code.
         NSLog(@"PYTHONPATH:");
         // // The .zip form of the stdlib
-        // path = [NSString stringWithFormat:@"%@/Support/Python/Resources/lib/python311.zip", resourcePath, nil];
+        // path = [NSString stringWithFormat:@"%@/Support/Python/Resources/lib/python{{ cookiecutter.python_version|py_libtag }}.zip", resourcePath, nil];
         // NSLog(@"- %@", path);
         // wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         // status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
         // PyMem_RawFree(wtmp_str);
 
         // The unpacked form of the stdlib
-        path = [NSString stringWithFormat:@"%@/Support/Python/Resources/lib/python3.11", resourcePath, nil];
+        path = [NSString stringWithFormat:@"%@/Support/Python/Resources/lib/python{{ cookiecutter.python_version|py_tag }}", resourcePath, nil];
         NSLog(@"- %@", path);
         wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);

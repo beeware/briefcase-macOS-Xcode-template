@@ -14,36 +14,6 @@ defaults:
     shell: bash # https://github.com/beeware/briefcase/pull/912
 
 jobs:
-  pre-commit:
-    name: Pre-commit code style checks
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v3.1.0
-      - name: Set up Python
-        uses: actions/setup-python@v4.3.0
-        with:
-          python-version: ${{ env.python_version }}
-      - name: Lint with Pre-commit
-        uses: pre-commit/action@v3.0.0
-
-  towncrier:
-    runs-on: ubuntu-latest
-    steps:
-      # Fetch main branch for comparison, then check out current branch.
-      - uses: actions/checkout@v3.1.0
-        with:
-          fetch-depth: 0
-          ref: main
-      - uses: actions/checkout@v3.1.0
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v4.3.0
-        with:
-          python-version: ${{ env.python_version }}
-      - run: pip install tox
-      - run: tox -e towncrier-check
-
   verify-apps:
     name: Build apps
     strategy:
@@ -75,27 +45,8 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ env.python_version }}
-      - name: Install system dependencies
-        if: matrix.platform == 'ubuntu-22.04'
-        run: |
-          sudo apt-get install -y flatpak flatpak-builder
-      - name: Get packages
-        uses: actions/download-artifact@v3
-        with:
-          name: packages
-          path: dist
       - name: Install packages
         run: pip install briefcase
-      - name: Create App
-        run: |
-          cd tests/apps
-          cat verify-${{ matrix.framework }}.config | briefcase new --template .
-      - name: Build App
-        run: |
-          cd tests/apps/verify-${{ matrix.framework }}
-          briefcase create
-          briefcase build
-          briefcase package --adhoc-sign
       - name: Build Xcode project
         if: matrix.os_name == 'macOS'
         run: |
@@ -103,38 +54,9 @@ jobs:
           briefcase create ${{ matrix.os_name }} Xcode
           briefcase build ${{ matrix.os_name }} Xcode
           briefcase package ${{ matrix.os_name }} Xcode --adhoc-sign
-      - name: Build Visual Studio project
-        if: matrix.os_name == 'windows'
-        run: |
-          cd tests/apps/verify-${{ matrix.framework }}
-          briefcase create ${{ matrix.os_name }} VisualStudio
-          briefcase build ${{ matrix.os_name }} VisualStudio
-          briefcase package ${{ matrix.os_name }} VisualStudio --adhoc-sign
-      - name: Build Flatpak project
-        if: matrix.os_name == 'linux' && matrix.framework == 'toga'
-        run: |
-          cd tests/apps/verify-${{ matrix.framework }}
-          briefcase create ${{ matrix.os_name }} flatpak
-          briefcase build ${{ matrix.os_name }} flatpak
-          briefcase package ${{ matrix.os_name }} flatpak --adhoc-sign
-      - name: Build Android App
-        if: matrix.framework == 'toga'
-        run: |
-          cd tests/apps/verify-${{ matrix.framework }}
-          briefcase create android
-          briefcase build android
-          briefcase package android --adhoc-sign
-      - name: Build iOS App
-        if: matrix.platform == 'macos-12' && matrix.framework == 'toga'
-        run: |
-          cd tests/apps/verify-${{ matrix.framework }}
-          briefcase create iOS
-          briefcase build iOS -d "iPhone SE (2nd generation)"
-          briefcase package iOS --adhoc-sign
-      - name: Build Web App
-        if: matrix.framework == 'toga'
-        run: |
-          cd tests/apps/verify-${{ matrix.framework }}
-          briefcase create web
-          briefcase build web
-          briefcase package web
+      - uses: actions/upload-artifact@v3
+        name: Upload failure
+        if: failure()
+        with:
+          name: build-failure-logs-${{ matrix.framework }}
+          path: tests/apps/verify-${{ matrix.framework }}/logs/*

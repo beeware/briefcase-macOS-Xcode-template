@@ -63,6 +63,13 @@ jobs:
           briefcase create
           briefcase build
           briefcase package --adhoc-sign
+      - uses: actions/upload-artifact@v3
+        name: Upload failure
+        if: failure()
+        with:
+          name: build-failure-logs-${{ matrix.framework }}
+          path: tests/apps/verify-${{ matrix.framework }}/logs/*
+
       - name: Build Xcode project
         if: matrix.os_name == 'macOS'
         run: |
@@ -70,6 +77,12 @@ jobs:
           briefcase create ${{ matrix.os_name }} Xcode
           briefcase build ${{ matrix.os_name }} Xcode
           briefcase package ${{ matrix.os_name }} Xcode --adhoc-sign
+      - uses: actions/upload-artifact@v3
+        name: Upload failure
+        if: failure()
+        with:
+          name: build-failure-logs-${{ matrix.framework }}
+          path: tests/apps/verify-${{ matrix.framework }}/logs/*
       - name: Build Android App
         if: matrix.framework == 'toga'
         run: |
@@ -77,6 +90,12 @@ jobs:
           briefcase create android
           briefcase build android
           briefcase package android --adhoc-sign
+      - uses: actions/upload-artifact@v3
+        name: Upload failure
+        if: failure()
+        with:
+          name: build-failure-logs-${{ matrix.framework }}
+          path: tests/apps/verify-${{ matrix.framework }}/logs/*
       - name: Build iOS App
         if: matrix.platform == 'macos-12' && matrix.framework == 'toga'
         run: |
@@ -84,6 +103,12 @@ jobs:
           briefcase create iOS
           briefcase build iOS -d "iPhone SE (2nd generation)"
           briefcase package iOS --adhoc-sign
+      - uses: actions/upload-artifact@v3
+        name: Upload failure
+        if: failure()
+        with:
+          name: build-failure-logs-${{ matrix.framework }}
+          path: tests/apps/verify-${{ matrix.framework }}/logs/*
       - name: Build Web App
         if: matrix.framework == 'toga'
         run: |
@@ -91,3 +116,9 @@ jobs:
           briefcase create web
           briefcase build web
           briefcase package web
+      - uses: actions/upload-artifact@v3
+        name: Upload failure
+        if: failure()
+        with:
+          name: build-failure-logs-${{ matrix.framework }}
+          path: tests/apps/verify-${{ matrix.framework }}/logs/*

@@ -50,10 +50,10 @@ jobs:
       - name: Create App
         run: |
           cd tests/apps
-          cat verify-${{ matrix.framework }}.config | briefcase new --template ../..
-          echo "DEBUG BY PRINT"
-          ls -lah
-          echo "END DEBUG BY PRINT"
+          cat verify-${{ matrix.framework }}.config | briefcase new
+      - name: Modify pyproject.toml to use local template
+        run: |
+          perl -i -l -p -e 'print "template = '../'" if $. == 3' pyproject.toml
       - name: Build App
         run: |
           cd tests/apps/verify-${{ matrix.framework }}

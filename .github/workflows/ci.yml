@@ -63,6 +63,7 @@ jobs:
           briefcase create
           echo 'CREATE COMPLETE'
           ls -lah macOS/app/*
+          echo "RUNNING BUILD"
           briefcase build
           echo 'BUILD COMPLETE'
           ls -lah macOS/app/*

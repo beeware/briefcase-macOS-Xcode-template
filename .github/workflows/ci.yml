@@ -53,6 +53,7 @@ jobs:
           cat verify-${{ matrix.framework }}.config | briefcase new
       - name: Modify pyproject.toml to use local template
         run: |
+          cd tests/apps/verify-${{ matrix.framework }}
           perl -i -l -p -e 'print "template = '../'" if $. == 3' pyproject.toml
       - name: Build App
         run: |

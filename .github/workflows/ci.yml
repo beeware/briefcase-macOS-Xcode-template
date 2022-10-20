@@ -51,6 +51,9 @@ jobs:
         run: |
           cd tests/apps
           cat verify-${{ matrix.framework }}.config | briefcase new --template ../..
+          echo "DEBUG BY PRINT"
+          ls -lah
+          echo "END DEBUG BY PRINT"
       - name: Build App
         run: |
           cd tests/apps/verify-${{ matrix.framework }}

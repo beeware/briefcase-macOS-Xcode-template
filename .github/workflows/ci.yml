@@ -63,10 +63,8 @@ jobs:
           cd tests/apps/verify-${{ matrix.framework }}
           briefcase create ${{ matrix.os_name }} Xcode
           echo 'CREATE COMPLETE'
-          ls -lah macOS/app/*
           briefcase build ${{ matrix.os_name }} Xcode
           echo 'BUILD COMPLETE'
-          ls -lah macOS/app/*
           briefcase package ${{ matrix.os_name }} Xcode --adhoc-sign
       - uses: actions/upload-artifact@v3
         name: Upload failure

@@ -8,7 +8,6 @@ author = 'Brutus'
 author_email = "contact@beeware.org"
 
 [tool.briefcase.app.verify-ppb]
-template = "../../.."
 formal_name = "Hello PPB"
 description = "A PPB test app"
 icon = "src/verify_ppb/resources/verify-ppb"
@@ -17,30 +16,8 @@ requires = [
     'ppb~=1.1',
 ]
 
-
-[tool.briefcase.app.verify-ppb.macOS]
+[tool.briefcase.app.verify-ppb.macOS.Xcode]
+template = "../../.."
 requires = [
     'std-nslog~=1.0.0'
 ]
-
-[tool.briefcase.app.verify-ppb.linux]
-requires = []
-
-[tool.briefcase.app.verify-ppb.linux.appimage]
-system_requires = []
-linuxdeploy_plugins = []
-
-[tool.briefcase.app.verify-ppb.linux.flatpak]
-
-[tool.briefcase.app.verify-ppb.windows]
-requires = []
-
-# Mobile deployments
-[tool.briefcase.app.verify-ppb.iOS]
-supported = false
-
-[tool.briefcase.app.verify-ppb.android]
-supported = false
-
-[tool.briefcase.app.verify-ppb.web]
-supported = false

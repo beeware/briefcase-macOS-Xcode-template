@@ -61,7 +61,11 @@ jobs:
         run: |
           cd tests/apps/verify-${{ matrix.framework }}
           briefcase create
+          echo 'CREATE COMPLETE'
+          ls -lah macOS/app/*
           briefcase build
+          echo 'BUILD COMPLETE'
+          ls -lah macOS/app/*
           briefcase package --adhoc-sign
       - uses: actions/upload-artifact@v3
         name: Upload failure
@@ -75,7 +79,11 @@ jobs:
         run: |
           cd tests/apps/verify-${{ matrix.framework }}
           briefcase create ${{ matrix.os_name }} Xcode
+          echo 'CREATE COMPLETE'
+          ls -lah macOS/app/*
           briefcase build ${{ matrix.os_name }} Xcode
+          echo 'BUILD COMPLETE'
+          ls -lah macOS/app/*
           briefcase package ${{ matrix.os_name }} Xcode --adhoc-sign
       - uses: actions/upload-artifact@v3
         name: Upload failure
@@ -88,7 +96,11 @@ jobs:
         run: |
           cd tests/apps/verify-${{ matrix.framework }}
           briefcase create android
+          echo 'CREATE COMPLETE'
+          ls -lah android/app/*
           briefcase build android
+          echo 'CREATE COMPLETE'
+          ls -lah android/app/*
           briefcase package android --adhoc-sign
       - uses: actions/upload-artifact@v3
         name: Upload failure
@@ -101,7 +113,11 @@ jobs:
         run: |
           cd tests/apps/verify-${{ matrix.framework }}
           briefcase create iOS
+          echo 'CREATE COMPLETE'
+          ls -lah iOS/app/*
           briefcase build iOS -d "iPhone SE (2nd generation)"
+          echo 'CREATE COMPLETE'
+          ls -lah iOS/app/*
           briefcase package iOS --adhoc-sign
       - uses: actions/upload-artifact@v3
         name: Upload failure

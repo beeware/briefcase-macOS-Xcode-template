@@ -57,24 +57,6 @@ jobs:
           { head -n 1 pyproject.toml; echo "template = '../../../'"; tail -n +2 pyproject.toml; } > pyproject.toml.tmp
           rm pyproject.toml
           mv pyproject.toml.tmp pyproject.toml
-      - name: Build App
-        run: |
-          cd tests/apps/verify-${{ matrix.framework }}
-          briefcase create
-          echo 'CREATE COMPLETE'
-          ls -lah macOS/app/*
-          echo "RUNNING BUILD"
-          briefcase build
-          echo 'BUILD COMPLETE'
-          ls -lah macOS/app/*
-          briefcase package --adhoc-sign
-      - uses: actions/upload-artifact@v3
-        name: Upload failure
-        if: failure()
-        with:
-          name: build-failure-logs-${{ matrix.framework }}
-          path: tests/apps/verify-${{ matrix.framework }}/logs/*
-
       - name: Build Xcode project
         if: matrix.os_name == 'macOS'
         run: |
@@ -86,53 +68,6 @@ jobs:
           echo 'BUILD COMPLETE'
           ls -lah macOS/app/*
           briefcase package ${{ matrix.os_name }} Xcode --adhoc-sign
-      - uses: actions/upload-artifact@v3
-        name: Upload failure
-        if: failure()
-        with:
-          name: build-failure-logs-${{ matrix.framework }}
-          path: tests/apps/verify-${{ matrix.framework }}/logs/*
-      - name: Build Android App
-        if: matrix.framework == 'toga'
-        run: |
-          cd tests/apps/verify-${{ matrix.framework }}
-          briefcase create android
-          echo 'CREATE COMPLETE'
-          ls -lah android/app/*
-          briefcase build android
-          echo 'CREATE COMPLETE'
-          ls -lah android/app/*
-          briefcase package android --adhoc-sign
-      - uses: actions/upload-artifact@v3
-        name: Upload failure
-        if: failure()
-        with:
-          name: build-failure-logs-${{ matrix.framework }}
-          path: tests/apps/verify-${{ matrix.framework }}/logs/*
-      - name: Build iOS App
-        if: matrix.platform == 'macos-12' && matrix.framework == 'toga'
-        run: |
-          cd tests/apps/verify-${{ matrix.framework }}
-          briefcase create iOS
-          echo 'CREATE COMPLETE'
-          ls -lah iOS/app/*
-          briefcase build iOS -d "iPhone SE (2nd generation)"
-          echo 'CREATE COMPLETE'
-          ls -lah iOS/app/*
-          briefcase package iOS --adhoc-sign
-      - uses: actions/upload-artifact@v3
-        name: Upload failure
-        if: failure()
-        with:
-          name: build-failure-logs-${{ matrix.framework }}
-          path: tests/apps/verify-${{ matrix.framework }}/logs/*
-      - name: Build Web App
-        if: matrix.framework == 'toga'
-        run: |
-          cd tests/apps/verify-${{ matrix.framework }}
-          briefcase create web
-          briefcase build web
-          briefcase package web
       - uses: actions/upload-artifact@v3
         name: Upload failure
         if: failure()

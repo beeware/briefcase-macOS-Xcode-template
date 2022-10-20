@@ -54,7 +54,9 @@ jobs:
       - name: Modify pyproject.toml to use local template
         run: |
           cd tests/apps/verify-${{ matrix.framework }}
-          perl -i -l -p -e 'print "template = '../'" if $. == 3' pyproject.toml
+          { head -n 1 pyproject.toml; echo "template = '../'"; tail -n +2 pyproject.toml; } > pyproject.toml.tmp
+          rm pyproject.toml
+          mv pyproject.toml.tmp pyproject.toml
       - name: Build App
         run: |
           cd tests/apps/verify-${{ matrix.framework }}

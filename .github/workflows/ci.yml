@@ -47,16 +47,6 @@ jobs:
           python-version: ${{ env.python_version }}
       - name: Install packages
         run: pip install briefcase
-      - name: Create App
-        run: |
-          cd tests/apps
-          cat verify-${{ matrix.framework }}.config | briefcase new
-      - name: Modify pyproject.toml to use local template
-        run: |
-          cd tests/apps/verify-${{ matrix.framework }}
-          { head -n 1 pyproject.toml; echo "template = '../../../'"; tail -n +2 pyproject.toml; } > pyproject.toml.tmp
-          rm pyproject.toml
-          mv pyproject.toml.tmp pyproject.toml
       - name: Build Xcode project
         if: matrix.os_name == 'macOS'
         run: |

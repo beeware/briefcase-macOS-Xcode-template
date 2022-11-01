@@ -76,7 +76,7 @@
 			isa = PBXGroup;
 			children = (
 				60A04BBB28AF5E1000DAA9E5 /* Support */,
-				0D354FCA2551BFBA009178D1 /* {{ cookiecutter.formal_name }} */,
+				0D354FCA2551BFBA009178D1 /* {{ cookiecutter.class_name }} */,
 				0D354FC92551BFBA009178D1 /* Products */,
 				0D354FE42551C1E1009178D1 /* Frameworks */,
 			);
@@ -90,7 +90,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		0D354FCA2551BFBA009178D1 /* {{ cookiecutter.formal_name }} */ = {
+		0D354FCA2551BFBA009178D1 /* {{ cookiecutter.class_name }} */ = {
 			isa = PBXGroup;
 			children = (
 				0D267B6A2554BB1800AC3E85 /* app */,
@@ -100,7 +100,7 @@
 				0D354FD72551BFBD009178D1 /* main.m */,
 				0D354FD92551BFBD009178D1 /* {{ cookiecutter.app_name }}.entitlements */,
 			);
-			path = "{{ cookiecutter.formal_name }}";
+			path = "{{ cookiecutter.class_name }}";
 			sourceTree = "<group>";
 		};
 		0D354FE42551C1E1009178D1 /* Frameworks */ = {
@@ -354,13 +354,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_ENTITLEMENTS = "{{ cookiecutter.formal_name }}/{{ cookiecutter.app_name }}.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "{{ cookiecutter.class_name }}/{{ cookiecutter.app_name }}.entitlements";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				INFOPLIST_FILE = "{{ cookiecutter.formal_name }}/Info.plist";
+				INFOPLIST_FILE = "{{ cookiecutter.class_name }}/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -380,14 +380,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_ENTITLEMENTS = "{{ cookiecutter.formal_name }}/{{ cookiecutter.app_name }}.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "{{ cookiecutter.class_name }}/{{ cookiecutter.app_name }}.entitlements";
                 CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				INFOPLIST_FILE = "{{ cookiecutter.formal_name }}/Info.plist";
+				INFOPLIST_FILE = "{{ cookiecutter.class_name }}/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

@@ -15,6 +15,8 @@
 		0D7B44A82555E01500CBC44B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D7B44A72555E01500CBC44B /* Foundation.framework */; };
 		0D7B44DA2556C84100CBC44B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D354FD72551BFBD009178D1 /* main.m */; };
 		60068E682910D69500E90E24 /* {{ cookiecutter.class_name }}Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 60068E672910D69500E90E24 /* {{ cookiecutter.class_name }}Tests.m */; };
+		60068E722912145300E90E24 /* tests in Resources */ = {isa = PBXBuildFile; fileRef = 60068E712912145200E90E24 /* tests */; };
+		60068E732912145500E90E24 /* test_packages in Resources */ = {isa = PBXBuildFile; fileRef = 60068E6F2912144500E90E24 /* test_packages */; };
 		60A04BBF28AF5E7400DAA9E5 /* python-stdlib in Copy Python standard library */ = {isa = PBXBuildFile; fileRef = 60A04BBE28AF5E7400DAA9E5 /* python-stdlib */; };
 		60A04BC028AF5EC000DAA9E5 /* Python.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60A04BBC28AF5E6900DAA9E5 /* Python.xcframework */; };
 /* End PBXBuildFile section */
@@ -66,6 +68,8 @@
 		0D7B44A72555E01500CBC44B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		60068E652910D69500E90E24 /* {{ cookiecutter.class_name }}Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = {{ cookiecutter.class_name }}Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		60068E672910D69500E90E24 /* {{ cookiecutter.class_name }}Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = {{ cookiecutter.class_name }}Tests.m; sourceTree = "<group>"; };
+		60068E6F2912144500E90E24 /* test_packages */ = {isa = PBXFileReference; lastKnownFileType = folder; path = test_packages; sourceTree = "<group>"; };
+		60068E712912145200E90E24 /* tests */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tests; sourceTree = "<group>"; };
 		60A04BBC28AF5E6900DAA9E5 /* Python.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Python.xcframework; sourceTree = "<group>"; };
 		60A04BBE28AF5E7400DAA9E5 /* python-stdlib */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "python-stdlib"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -117,6 +121,8 @@
 			children = (
 				0D267B6A2554BB1800AC3E85 /* app */,
 				0D267B692554BB1800AC3E85 /* app_packages */,
+				60068E712912145200E90E24 /* tests */,
+				60068E6F2912144500E90E24 /* test_packages */,
 				0D354FD12551BFBD009178D1 /* Assets.xcassets */,
 				0D354FD62551BFBD009178D1 /* Info.plist */,
 				0D354FD72551BFBD009178D1 /* main.m */,
@@ -246,6 +252,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				60068E722912145300E90E24 /* tests in Resources */,
+				60068E732912145500E90E24 /* test_packages in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

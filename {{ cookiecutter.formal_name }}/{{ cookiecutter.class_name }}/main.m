@@ -286,6 +286,11 @@ void crash_dialog(NSString *details) {
     // Write the error to the log
     NSLog(@"%@", details);
 
+    // If we're running in headless mode, don't show error dialogs
+    if (getenv("BRIEFCASE_HEADLESS")) {
+        return;
+    }
+
     // Obtain the app instance (starting it if necessary) so that we can show an error dialog
     NSApplication *app = [NSApplication sharedApplication];
     [app setActivationPolicy:NSApplicationActivationPolicyRegular];

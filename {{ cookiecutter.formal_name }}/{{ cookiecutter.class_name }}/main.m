@@ -20,8 +20,8 @@ int main(int argc, char *argv[]) {
     NSString *app_module_name;
     NSString *path;
     NSString *traceback_str;
-    wchar_t *wapp_module_name;
     wchar_t *wtmp_str;
+    const char *app_module_str;
     const char* nslog_script;
     PyObject *app_module;
     PyObject *module;
@@ -61,13 +61,21 @@ int main(int argc, char *argv[]) {
         }
         PyMem_RawFree(wtmp_str);
 
-        // Determine the app module name
-        app_module_name = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"MainModule"];
-        if (app_module_name == NULL) {
-            NSLog(@"Unable to identify app module name.");
+        // Determine the app module name. Look for the BRIEFCASE_MAIN_MODULE
+        // environment variable first; if that exists, we're probably in test
+        // mode. If it doesn't exist, fall back to the MainModule key in the
+        // main bundle.
+        app_module_str = getenv("BRIEFCASE_MAIN_MODULE");
+        if (app_module_str) {
+            app_module_name = [[NSString alloc] initWithUTF8String:app_module_str];
+        } else {
+            app_module_name = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"MainModule"];
+            if (app_module_name == NULL) {
+                NSLog(@"Unable to identify app module name.");
+            }
+            app_module_str = [app_module_name UTF8String];
         }
-        wapp_module_name = Py_DecodeLocale([app_module_name UTF8String], NULL);
-        status = PyConfig_SetString(&config, &config.run_module, wapp_module_name);
+        status = PyConfig_SetBytesString(&config, &config.run_module, app_module_str);
         if (PyStatus_Exception(status)) {
             crash_dialog([NSString stringWithFormat:@"Unable to set app module name: %s", status.err_msg, nil]);
             PyConfig_Clear(&config);
@@ -207,7 +215,7 @@ int main(int argc, char *argv[]) {
                 exit(-3);
             }
 
-            app_module = PyUnicode_FromWideChar(wapp_module_name, wcslen(wapp_module_name));
+            app_module = PyUnicode_FromString(app_module_str);
             if (app_module == NULL) {
                 crash_dialog(@"Could not convert module name to unicode");
                 exit(-3);
@@ -269,8 +277,6 @@ int main(int argc, char *argv[]) {
         @finally {
             Py_Finalize();
         }
-
-        PyMem_RawFree(wapp_module_name);
     }
 
     exit(ret);
@@ -286,8 +292,8 @@ void crash_dialog(NSString *details) {
     // Write the error to the log
     NSLog(@"%@", details);
 
-    // If we're running in headless mode, don't show error dialogs
-    if (getenv("BRIEFCASE_HEADLESS")) {
+    // If there's an app module override, we're running in test mode; don't show error dialogs
+    if (getenv("BRIEFCASE_MAIN_MODULE")) {
         return;
     }
 

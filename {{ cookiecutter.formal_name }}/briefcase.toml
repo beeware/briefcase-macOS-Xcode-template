@@ -3,6 +3,8 @@
 app_path = "{{ cookiecutter.class_name }}/app"
 app_packages_path = "{{ cookiecutter.class_name }}/app_packages"
 info_plist_path = "{{ cookiecutter.class_name }}/Info.plist"
+entitlements_path = "{{ cookiecutter.class_name }}/{{ cookiecutter.app_name }}.entitlements"
+
 support_path = "Support"
 {{ {
     "3.8": "support_revision = 12",

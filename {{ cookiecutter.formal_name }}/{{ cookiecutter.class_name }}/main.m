@@ -15,8 +15,8 @@ NSString * format_traceback(PyObject *type, PyObject *value, PyObject *traceback
 int main(int argc, char *argv[]) {
     int ret = 0;
     PyStatus status;
-    PyConfig config;
     PyPreConfig preconfig;
+    PyConfig config;
     NSString *python_home;
     NSString *app_module_name;
     NSString *path;
@@ -39,8 +39,8 @@ int main(int argc, char *argv[]) {
 
         // Generate an isolated Python configuration.
         NSLog(@"Configuring isolated Python...");
-        PyConfig_InitIsolatedConfig(&config);
         PyPreConfig_InitIsolatedConfig(&preconfig);
+        PyConfig_InitIsolatedConfig(&config);
 
         // Configure the Python interpreter:
         // Enforce UTF-8 encoding for stderr, stdout, file-system encoding and locale.

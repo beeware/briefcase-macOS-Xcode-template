@@ -10,6 +10,8 @@
     "build": "1",
     "document_types": {},
     "python_version": "3.X.0",
+    "universal_build": true,
+    "host_arch": "arm64",
     "_extensions": [
         "briefcase.integrations.cookiecutter.PythonVersionExtension"
     ]

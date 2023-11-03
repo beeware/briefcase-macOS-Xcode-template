@@ -5,7 +5,7 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 #import <Cocoa/Cocoa.h>
-#include <Python.h>
+#import <Python/Python.h>
 #include <dlfcn.h>
 
 
@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
 
     @autoreleasepool {
         NSString * resourcePath = [[NSBundle mainBundle] resourcePath];
+        NSString * frameworksPath = [[NSBundle mainBundle] privateFrameworksPath];
 
         // Generate an isolated Python configuration.
         NSLog(@"Configuring isolated Python...");
@@ -53,6 +54,8 @@ int main(int argc, char *argv[]) {
         config.write_bytecode = 0;
         // Isolated apps need to set the full PYTHONPATH manually.
         config.module_search_paths_set = 1;
+        // Enable verbose logging for debug purposes
+        // config.verbose = 1;
 
         NSLog(@"Pre-initializing Python runtime...");
         status = Py_PreInitialize(&preconfig);
@@ -63,7 +66,7 @@ int main(int argc, char *argv[]) {
         }
 
         // Set the home for the Python interpreter
-        python_home = [NSString stringWithFormat:@"%@/support/python-stdlib", resourcePath, nil];
+        python_home = [NSString stringWithFormat:@"%@/Python.framework/Versions/{{ cookiecutter.python_version|py_tag }}", frameworksPath, nil];
         NSLog(@"PythonHome: %@", python_home);
         wtmp_str = Py_DecodeLocale([python_home UTF8String], NULL);
         status = PyConfig_SetString(&config, &config.home, wtmp_str);
@@ -106,20 +109,8 @@ int main(int argc, char *argv[]) {
         // Set the full module path. This includes the stdlib, site-packages, and app code.
         NSLog(@"PYTHONPATH:");
 
-        // The .zip form of the stdlib
-        path = [NSString stringWithFormat:@"%@/support/python{{ cookiecutter.python_version|py_libtag }}.zip", resourcePath, nil];
-        NSLog(@"- %@", path);
-        wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
-        status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
-        if (PyStatus_Exception(status)) {
-            crash_dialog([NSString stringWithFormat:@"Unable to set .zip form of stdlib path: %s", status.err_msg, nil]);
-            PyConfig_Clear(&config);
-            Py_ExitStatusException(status);
-        }
-        PyMem_RawFree(wtmp_str);
-
         // The unpacked form of the stdlib
-        path = [NSString stringWithFormat:@"%@/support/python-stdlib", resourcePath, nil];
+        path = [NSString stringWithFormat:@"%@/Python.framework/Versions/{{ cookiecutter.python_version|py_tag }}/lib/python{{ cookiecutter.python_version|py_tag }}", frameworksPath, nil];
         NSLog(@"- %@", path);
         wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
@@ -131,7 +122,7 @@ int main(int argc, char *argv[]) {
         PyMem_RawFree(wtmp_str);
 
         // Add the stdlib binary modules path
-        path = [NSString stringWithFormat:@"%@/support/python-stdlib/lib-dynload", resourcePath, nil];
+        path = [NSString stringWithFormat:@"%@/Python.framework/Versions/{{ cookiecutter.python_version|py_tag }}/lib/python{{ cookiecutter.python_version|py_tag }}/lib-dynload", frameworksPath, nil];
         NSLog(@"- %@", path);
         wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);

@@ -6,7 +6,7 @@
     "module_name": "{{ cookiecutter.app_name|replace('-', '_') }}",
     "author": "Example Corporation",
     "bundle": "com.example",
-    "permissions": "",
+    "info": "",
     "entitlements": "",
     "document_types": "",
     "version": "1.0",

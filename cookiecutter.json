@@ -6,16 +6,13 @@
     "module_name": "{{ cookiecutter.app_name|replace('-', '_') }}",
     "author": "Example Corporation",
     "bundle": "com.example",
-    "info": "",
-    "entitlements": "",
-    "document_types": "",
     "version": "1.0",
     "build": "1",
+    "document_types": {},
     "python_version": "3.X.0",
     "universal_build": true,
     "host_arch": "arm64",
     "_extensions": [
-        "briefcase.integrations.cookiecutter.PythonVersionExtension",
-        "briefcase.integrations.cookiecutter.PListExtension"
+        "briefcase.integrations.cookiecutter.PythonVersionExtension"
     ]
 }

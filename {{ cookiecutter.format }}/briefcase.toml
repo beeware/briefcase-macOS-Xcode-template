@@ -13,7 +13,21 @@ support_path = "Support"
     "3.11": "support_revision = 3",
     "3.12": "support_revision = 2",
 }.get(cookiecutter.python_version|py_tag, "") }}
-
+cleanup_paths = [
+    "Support/Python.xcframework/macos-arm64_x86_64/Python.framework/Versions/*/lib/itcl*",
+    "Support/Python.xcframework/macos-arm64_x86_64/Python.framework/Versions/*/lib/python*/__phello__",
+    "Support/Python.xcframework/macos-arm64_x86_64/Python.framework/Versions/*/lib/python*/**/test",
+    "Support/Python.xcframework/macos-arm64_x86_64/Python.framework/Versions/*/lib/python*/idlelib",
+    "Support/Python.xcframework/macos-arm64_x86_64/Python.framework/Versions/*/lib/python*/tkinter",
+    "Support/Python.xcframework/macos-arm64_x86_64/Python.framework/Versions/*/lib/python*/turtledemo",
+    "Support/Python.xcframework/macos-arm64_x86_64/Python.framework/Versions/*/lib/tcl*",
+    "Support/Python.xcframework/macos-arm64_x86_64/Python.framework/Versions/*/lib/tk*",
+    "Support/Python.xcframework/macos-arm64_x86_64/Python.framework/Versions/*/lib/tdbc*",
+    "Support/Python.xcframework/macos-arm64_x86_64/Python.framework/Versions/*/lib/._lib*",
+    "Support/Python.xcframework/macos-arm64_x86_64/Python.framework/Versions/*/lib/libtcl*",
+    "Support/Python.xcframework/macos-arm64_x86_64/Python.framework/Versions/*/lib/libtk*",
+    "Support/Python.xcframework/macos-arm64_x86_64/Python.framework/Versions/*/lib/Tk.*",
+]
 icon.16 = "{{ cookiecutter.class_name }}/Assets.xcassets/{{ cookiecutter.formal_name }}.appiconset/icon-16.png"
 icon.32 = "{{ cookiecutter.class_name }}/Assets.xcassets/{{ cookiecutter.formal_name }}.appiconset/icon-32.png"
 icon.64 = "{{ cookiecutter.class_name }}/Assets.xcassets/{{ cookiecutter.formal_name }}.appiconset/icon-64.png"

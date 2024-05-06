@@ -7,6 +7,8 @@
 #import <Cocoa/Cocoa.h>
 #include <Python.h>
 #include <dlfcn.h>
+#include <libgen.h>
+#include <mach-o/dyld.h>
 
 
 void crash_dialog(NSString *);
@@ -17,13 +19,19 @@ int main(int argc, char *argv[]) {
     PyStatus status;
     PyPreConfig preconfig;
     PyConfig config;
+    NSBundle *mainBundle;
+    NSString *resourcePath;
     NSString *python_home;
     NSString *app_module_name;
     NSString *path;
     NSString *traceback_str;
     wchar_t *wtmp_str;
+    uint32_t path_max = PATH_MAX;
+    char binary_path[PATH_MAX];
+    char resolved_binary_path[PATH_MAX];
+    char *bundle_path;
     const char *app_module_str;
-    const char* nslog_script;
+    const char *nslog_script;
     PyObject *app_module;
     PyObject *module;
     PyObject *module_attr;
@@ -35,7 +43,20 @@ int main(int argc, char *argv[]) {
     PyObject *systemExit_code;
 
     @autoreleasepool {
-        NSString * resourcePath = [[NSBundle mainBundle] resourcePath];
+        // In a normal macOS app, [NSBundle mainBundle] works as expected.
+        // However, the path it generates is based on sys.argv[0], which won't
+        // be the same if you symlink to the binary to expose a command line
+        // app. Instead, use _NSGetExecutablePath to get the binary path, then
+        // construct the bundle path based on the known file structure of the
+        // app bundle.
+        _NSGetExecutablePath(binary_path, &path_max);
+        realpath(binary_path, resolved_binary_path);
+        NSLog(@"Binary: %s", resolved_binary_path);
+        bundle_path = dirname(dirname(dirname(resolved_binary_path)));
+        mainBundle = [NSBundle bundleWithPath:[NSString stringWithCString:bundle_path encoding:NSUTF8StringEncoding]];
+        NSLog(@"App Bundle: %@", mainBundle);
+
+        resourcePath = [mainBundle resourcePath];
 
         // Generate an isolated Python configuration.
         NSLog(@"Configuring isolated Python...");
@@ -82,7 +103,7 @@ int main(int argc, char *argv[]) {
         if (app_module_str) {
             app_module_name = [[NSString alloc] initWithUTF8String:app_module_str];
         } else {
-            app_module_name = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"MainModule"];
+            app_module_name = [mainBundle objectForInfoDictionaryKey:@"MainModule"];
             if (app_module_name == NULL) {
                 NSLog(@"Unable to identify app module name.");
             }
@@ -186,8 +207,8 @@ int main(int argc, char *argv[]) {
             // Install the nslog script to redirect stdout/stderr if available.
             // Set the name of the python NSLog bootstrap script
             nslog_script = [
-                [[NSBundle mainBundle] pathForResource:@"app_packages/nslog"
-                                                ofType:@"py"] cStringUsingEncoding:NSUTF8StringEncoding];
+                [mainBundle pathForResource:@"app_packages/nslog"
+                                     ofType:@"py"] cStringUsingEncoding:NSUTF8StringEncoding];
 
             if (nslog_script == NULL) {
                 NSLog(@"No Python NSLog handler found. stdout/stderr will not be captured.");

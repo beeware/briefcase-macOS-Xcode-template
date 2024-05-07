@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>{{ cookiecutter.formal_name }}</string>
 	<key>CFBundleIconFile</key>
-	<string>{{ cookiecutter.formal_name }}</string>
+	<string>{{ cookiecutter.formal_name }}.icns</string>
 	<key>CFBundleIconName</key>
 	<string>{{ cookiecutter.formal_name }}</string>
 	<key>CFBundleIdentifier</key>

@@ -2,7 +2,6 @@
 <installer-script minSpecVersion="1.000000">
     <title>{{ cookiecutter.formal_name }}</title>
     <welcome file="welcome.html" mime-type="text/html" />
-    <conclusion file="conclusion.html" mime-type="text/html" />
     <license file="LICENSE" mime-type="text/plain" />
     <options customize="never" allow-external-scripts="no"/>
     <domains enable_localSystem="true" />

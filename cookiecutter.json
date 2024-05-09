@@ -12,6 +12,7 @@
     "version": "1.0",
     "build": "1",
     "python_version": "3.X.0",
+    "console_app": false,
     "universal_build": true,
     "host_arch": "arm64",
     "_extensions": [

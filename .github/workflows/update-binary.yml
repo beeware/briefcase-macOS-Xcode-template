@@ -13,6 +13,7 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
     - name: Set Build Variables
+      id: build-vars
       env:
         TAG_NAME: ${{ github.ref }}
       run: |
@@ -49,7 +50,10 @@ jobs:
         echo "Build GUI stub artefact"
         mv "./build/gui-stub/macos/xcode/build/Release/GUI Stub.app/Contents/MacOS/GUI Stub" Stub
         codesign --remove-signature Stub
-        zip Console-Stub-${{ env.PYTHON_TAG }}-${{ steps.build-vars.outputs.BUILD_NUMBER }}.zip Stub
+        zip GUI-Stub-${{ env.PYTHON_TAG }}-${{ steps.build-vars.outputs.BUILD_NUMBER }}.zip Stub
+
+        echo "Stub binaries:"
+        ls -1 *.zip
 
     - name: Upload Release Asset to S3
       env:

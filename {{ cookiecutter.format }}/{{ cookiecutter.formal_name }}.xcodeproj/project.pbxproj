@@ -40,16 +40,6 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		609384A728C873E2005B2A5D /* Copy Python standard library */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = support;
-			dstSubfolderSpec = 7;
-			files = (
-			);
-			name = "Copy Python standard library";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -140,10 +130,9 @@
 				0D354FC42551BFBA009178D1 /* Sources */,
 				0D354FC52551BFBA009178D1 /* Frameworks */,
 				0D354FC62551BFBA009178D1 /* Resources */,
-				609384A728C873E2005B2A5D /* Copy Python standard library */,
 				0D7B44EB2556C8B800CBC44B /* Embed Foundation Extensions */,
-				60A04BC128AF640400DAA9E5 /* Sign Python Binary Modules */,
 				6060E7742AF0B40500C04AE0 /* Embed Frameworks */,
+				60A04BC128AF640400DAA9E5 /* Sign Python Binary Modules */,
 			);
 			buildRules = (
 			);
@@ -161,7 +150,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1540;
 				ORGANIZATIONNAME = "{{ cookiecutter.author }}";
 				TargetAttributes = {
 					0D354FC72551BFBA009178D1 = {
@@ -272,6 +261,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(PROJECT_DIR)\"",
@@ -337,6 +327,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(PROJECT_DIR)\"",

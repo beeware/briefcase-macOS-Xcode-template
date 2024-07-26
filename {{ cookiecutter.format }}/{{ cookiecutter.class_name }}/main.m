@@ -393,6 +393,13 @@ void setup_stdout(NSBundle *mainBundle) {
     int ret = 0;
     const char *nslog_script;
 
+    // If the app is running under Xcode 15 or later, we don't need to do anything,
+    // as stdout and stderr are automatically captured by the in-IDE console.
+    // See https://developer.apple.com/forums/thread/705868 for details.
+    if (getenv("IDE_DISABLED_OS_ACTIVITY_DT_MODE")) {
+        return;
+    }
+
     // Install the nslog script to redirect stdout/stderr if available.
     // Set the name of the python NSLog bootstrap script
     nslog_script = [

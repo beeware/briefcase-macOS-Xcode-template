@@ -7,23 +7,38 @@
 #import <Cocoa/Cocoa.h>
 #import <Python/Python.h>
 #include <dlfcn.h>
+#include <libgen.h>
+#include <mach-o/dyld.h>
 
+// A global indicator
+char *debug_mode;
 
+NSString * format_traceback(PyObject *, PyObject *, PyObject *);
+{% if cookiecutter.console_app %}
+void info_log(NSString *format, ...);
+void debug_log(NSString *format, ...);
+{% else %}
+#define info_log(...) NSLog(__VA_ARGS__)
+#define debug_log(...) if (debug_mode) NSLog(__VA_ARGS__)
+{% endif %}
+NSBundle *get_main_bundle(void);
+void setup_stdout(NSBundle *);
 void crash_dialog(NSString *);
-NSString * format_traceback(PyObject *type, PyObject *value, PyObject *traceback);
 
 int main(int argc, char *argv[]) {
     int ret = 0;
     PyStatus status;
     PyPreConfig preconfig;
     PyConfig config;
+    NSBundle *mainBundle;
+    NSString *resourcePath;
+    NSString *frameworksPath;
     NSString *python_home;
     NSString *app_module_name;
     NSString *path;
     NSString *traceback_str;
     wchar_t *wtmp_str;
     const char *app_module_str;
-    const char* nslog_script;
     PyObject *app_module;
     PyObject *module;
     PyObject *module_attr;
@@ -35,11 +50,16 @@ int main(int argc, char *argv[]) {
     PyObject *systemExit_code;
 
     @autoreleasepool {
-        NSString * resourcePath = [[NSBundle mainBundle] resourcePath];
-        NSString * frameworksPath = [[NSBundle mainBundle] privateFrameworksPath];
+        // Set the global debug state based on the runtime environment
+        debug_mode = getenv("BRIEFCASE_DEBUG");
+
+        // Set the resource path for the app
+        mainBundle = get_main_bundle();
+        resourcePath = [mainBundle resourcePath];
+        frameworksPath = [mainBundle privateFrameworksPath];
 
         // Generate an isolated Python configuration.
-        NSLog(@"Configuring isolated Python...");
+        debug_log(@"Configuring isolated Python...");
         PyPreConfig_InitIsolatedConfig(&preconfig);
         PyConfig_InitIsolatedConfig(&config);
 
@@ -57,7 +77,7 @@ int main(int argc, char *argv[]) {
         // Enable verbose logging for debug purposes
         // config.verbose = 1;
 
-        NSLog(@"Pre-initializing Python runtime...");
+        debug_log(@"Pre-initializing Python runtime...");
         status = Py_PreInitialize(&preconfig);
         if (PyStatus_Exception(status)) {
             crash_dialog([NSString stringWithFormat:@"Unable to pre-initialize Python interpreter: %s", status.err_msg, nil]);
@@ -67,7 +87,7 @@ int main(int argc, char *argv[]) {
 
         // Set the home for the Python interpreter
         python_home = [NSString stringWithFormat:@"%@/Python.framework/Versions/{{ cookiecutter.python_version|py_tag }}", frameworksPath, nil];
-        NSLog(@"PythonHome: %@", python_home);
+        debug_log(@"PythonHome: %@", python_home);
         wtmp_str = Py_DecodeLocale([python_home UTF8String], NULL);
         status = PyConfig_SetString(&config, &config.home, wtmp_str);
         if (PyStatus_Exception(status)) {
@@ -85,9 +105,9 @@ int main(int argc, char *argv[]) {
         if (app_module_str) {
             app_module_name = [[NSString alloc] initWithUTF8String:app_module_str];
         } else {
-            app_module_name = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"MainModule"];
+            app_module_name = [mainBundle objectForInfoDictionaryKey:@"MainModule"];
             if (app_module_name == NULL) {
-                NSLog(@"Unable to identify app module name.");
+                debug_log(@"Unable to identify app module name.");
             }
             app_module_str = [app_module_name UTF8String];
         }
@@ -107,11 +127,11 @@ int main(int argc, char *argv[]) {
         }
 
         // Set the full module path. This includes the stdlib, site-packages, and app code.
-        NSLog(@"PYTHONPATH:");
+        debug_log(@"PYTHONPATH:");
 
         // The unpacked form of the stdlib
         path = [NSString stringWithFormat:@"%@/Python.framework/Versions/{{ cookiecutter.python_version|py_tag }}/lib/python{{ cookiecutter.python_version|py_tag }}", frameworksPath, nil];
-        NSLog(@"- %@", path);
+        debug_log(@"- %@", path);
         wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
         if (PyStatus_Exception(status)) {
@@ -123,7 +143,7 @@ int main(int argc, char *argv[]) {
 
         // Add the stdlib binary modules path
         path = [NSString stringWithFormat:@"%@/Python.framework/Versions/{{ cookiecutter.python_version|py_tag }}/lib/python{{ cookiecutter.python_version|py_tag }}/lib-dynload", frameworksPath, nil];
-        NSLog(@"- %@", path);
+        debug_log(@"- %@", path);
         wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
         if (PyStatus_Exception(status)) {
@@ -135,7 +155,7 @@ int main(int argc, char *argv[]) {
 
         // Add the app_packages path
         path = [NSString stringWithFormat:@"%@/app_packages", resourcePath, nil];
-        NSLog(@"- %@", path);
+        debug_log(@"- %@", path);
         wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
         if (PyStatus_Exception(status)) {
@@ -147,7 +167,7 @@ int main(int argc, char *argv[]) {
 
         // Add the app path
         path = [NSString stringWithFormat:@"%@/app", resourcePath, nil];
-        NSLog(@"- %@", path);
+        debug_log(@"- %@", path);
         wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
         if (PyStatus_Exception(status)) {
@@ -157,7 +177,7 @@ int main(int argc, char *argv[]) {
         }
         PyMem_RawFree(wtmp_str);
 
-        NSLog(@"Configure argc/argv...");
+        debug_log(@"Configure argc/argv...");
         status = PyConfig_SetBytesArgv(&config, argc, argv);
         if (PyStatus_Exception(status)) {
             crash_dialog([NSString stringWithFormat:@"Unable to configured argc/argv: %s", status.err_msg, nil]);
@@ -165,7 +185,7 @@ int main(int argc, char *argv[]) {
             Py_ExitStatusException(status);
         }
 
-        NSLog(@"Initializing Python runtime...");
+        debug_log(@"Initializing Python runtime...");
         status = Py_InitializeFromConfig(&config);
         if (PyStatus_Exception(status)) {
             crash_dialog([NSString stringWithFormat:@"Unable to initialize Python interpreter: %s", status.err_msg, nil]);
@@ -174,30 +194,8 @@ int main(int argc, char *argv[]) {
         }
 
         @try {
-            // Install the nslog script to redirect stdout/stderr if available.
-            // Set the name of the python NSLog bootstrap script
-            nslog_script = [
-                [[NSBundle mainBundle] pathForResource:@"app_packages/nslog"
-                                                ofType:@"py"] cStringUsingEncoding:NSUTF8StringEncoding];
-
-            if (nslog_script == NULL) {
-                NSLog(@"No Python NSLog handler found. stdout/stderr will not be captured.");
-                NSLog(@"To capture stdout/stderr, add 'std-nslog' to your app dependencies.");
-            } else {
-                NSLog(@"Installing Python NSLog handler...");
-                FILE *fd = fopen(nslog_script, "r");
-                if (fd == NULL) {
-                    crash_dialog(@"Unable to open nslog.py");
-                    exit(-1);
-                }
-
-                ret = PyRun_SimpleFileEx(fd, nslog_script, 1);
-                fclose(fd);
-                if (ret != 0) {
-                    crash_dialog(@"Unable to install Python NSLog handler");
-                    exit(ret);
-                }
-            }
+            // Set up an stdout/stderr handling that is required
+            setup_stdout(mainBundle);
 
             // Start the app module.
             //
@@ -206,7 +204,7 @@ int main(int argc, char *argv[]) {
             // pymain_run_module() method); we need to re-implement it
             // because we need to be able to inspect the error state of
             // the interpreter, not just the return code of the module.
-            NSLog(@"Running app module: %@", app_module_name);
+            debug_log(@"Running app module: %@", app_module_name);
             module = PyImport_ImportModule("runpy");
             if (module == NULL) {
                 crash_dialog(@"Could not import runpy module");
@@ -232,7 +230,7 @@ int main(int argc, char *argv[]) {
             }
 
             // Print a separator to differentiate Python startup logs from app logs
-            NSLog(@"---------------------------------------------------------------------------");
+            debug_log(@"---------------------------------------------------------------------------");
 
             // Invoke the app module
             result = PyObject_Call(module_attr, method_args, NULL);
@@ -250,31 +248,21 @@ int main(int argc, char *argv[]) {
                 if (PyErr_GivenExceptionMatches(exc_value, PyExc_SystemExit)) {
                     systemExit_code = PyObject_GetAttrString(exc_value, "code");
                     if (systemExit_code == NULL) {
-                        NSLog(@"Could not determine exit code");
+                        debug_log(@"Could not determine exit code");
                         ret = -10;
                     }
                     else {
                         ret = (int) PyLong_AsLong(systemExit_code);
                     }
                 } else {
+                    // Non-SystemExit; likely an uncaught exception
                     ret = -6;
-                }
-
-                if (ret != 0) {
-                    NSLog(@"Application quit abnormally (Exit code %d)!", ret);
-
-                    traceback_str = format_traceback(exc_type, exc_value, exc_traceback);
-
-                    // Restore the error state of the interpreter.
-                    PyErr_Restore(exc_type, exc_value, exc_traceback);
-
-                    // Print exception to stderr.
-                    // In case of SystemExit, this will call exit()
-                    PyErr_Print();
+                    info_log(@"---------------------------------------------------------------------------");
+                    info_log(@"Application quit abnormally!");
 
                     // Display stack trace in the crash dialog.
+                    traceback_str = format_traceback(exc_type, exc_value, exc_traceback);
                     crash_dialog(traceback_str);
-                    exit(ret);
                 }
             }
         }
@@ -291,6 +279,145 @@ int main(int argc, char *argv[]) {
     return ret;
 }
 
+/**
+ * Convert a Python traceback object into a user-suitable string, stripping off
+ * stack context that comes from this stub binary.
+ *
+ * If any error occurs processing the traceback, the error message returned
+ * will describe the mode of failure.
+ */
+NSString *format_traceback(PyObject *type, PyObject *value, PyObject *traceback) {
+    NSRegularExpression *regex;
+    NSString *traceback_str;
+    PyObject *traceback_list;
+    PyObject *traceback_module;
+    PyObject *format_exception;
+    PyObject *traceback_unicode;
+    PyObject *inner_traceback;
+
+    // Drop the top two stack frames; these are internal
+    // wrapper logic, and not in the control of the user.
+    for (int i = 0; i < 2; i++) {
+        inner_traceback = PyObject_GetAttrString(traceback, "tb_next");
+        if (inner_traceback != NULL) {
+            traceback = inner_traceback;
+        }
+    }
+
+    // Format the traceback.
+    traceback_module = PyImport_ImportModule("traceback");
+    if (traceback_module == NULL) {
+        return @"Could not import traceback";
+    }
+
+    format_exception = PyObject_GetAttrString(traceback_module, "format_exception");
+    if (format_exception && PyCallable_Check(format_exception)) {
+        traceback_list = PyObject_CallFunctionObjArgs(format_exception, type, value, traceback, NULL);
+    } else {
+        return @"Could not find 'format_exception' in 'traceback' module";
+    }
+    if (traceback_list == NULL) {
+        return @"Could not format traceback";
+    }
+
+    traceback_unicode = PyUnicode_Join(PyUnicode_FromString(""), traceback_list);
+    traceback_str = [NSString stringWithUTF8String:PyUnicode_AsUTF8(PyObject_Str(traceback_unicode))];
+
+    // Take the opportunity to clean up the source path,
+    // so paths only refer to the "app local" path.
+    regex = [NSRegularExpression regularExpressionWithPattern:@"^  File \"/.*/(.*?).app/Contents/Resources/"
+                                                      options:NSRegularExpressionAnchorsMatchLines
+                                                        error:nil];
+    traceback_str = [regex stringByReplacingMatchesInString:traceback_str
+                                                    options:0
+                                                      range:NSMakeRange(0, [traceback_str length])
+                                               withTemplate:@"  File \"$1.app/Contents/Resources/"];
+    return traceback_str;
+}
+
+{% if cookiecutter.console_app %}
+void info_log(NSString *format, ...) {
+    va_list args;
+    va_start(args, format);
+    printf("%s\n", [[[NSString alloc] initWithFormat:format arguments:args] UTF8String]);
+    va_end(args);
+}
+
+void debug_log(NSString *format, ...) {
+    if (debug_mode) {
+        va_list args;
+        va_start(args, format);
+        printf("%s\n", [[[NSString alloc] initWithFormat:format arguments:args] UTF8String]);
+        va_end(args);
+    }
+}
+
+/****************************************************************************
+ * In a normal macOS app, [NSBundle mainBundle] works as expected. However,
+ * the path it generates is based on sys.argv[0], which won't be the same if
+ * you symlink to the binary to expose a command line app. Instead, use
+ * _NSGetExecutablePath to get the binary path, then construct the bundle
+ * path based on the known file structure of the app bundle.
+ ****************************************************************************/
+NSBundle* get_main_bundle(void) {
+    uint32_t path_max = PATH_MAX;
+    char binary_path[PATH_MAX];
+    char resolved_binary_path[PATH_MAX];
+    char *bundle_path;
+    NSBundle *mainBundle;
+
+    _NSGetExecutablePath(binary_path, &path_max);
+    realpath(binary_path, resolved_binary_path);
+    debug_log(@"Binary: %s", resolved_binary_path);
+    bundle_path = dirname(dirname(dirname(resolved_binary_path)));
+    mainBundle = [NSBundle bundleWithPath:[NSString stringWithCString:bundle_path encoding:NSUTF8StringEncoding]];
+    debug_log(@"App Bundle: %@", mainBundle);
+
+    return mainBundle;
+}
+
+void setup_stdout(NSBundle *mainBundle) {
+}
+
+void crash_dialog(NSString *details) {
+    info_log(details);
+}
+
+{% else %}
+
+NSBundle* get_main_bundle(void) {
+    return [NSBundle mainBundle];
+}
+
+void setup_stdout(NSBundle *mainBundle) {
+    int ret = 0;
+    const char *nslog_script;
+
+    // Install the nslog script to redirect stdout/stderr if available.
+    // Set the name of the python NSLog bootstrap script
+    nslog_script = [
+        [mainBundle pathForResource:@"app_packages/nslog"
+                                ofType:@"py"] cStringUsingEncoding:NSUTF8StringEncoding];
+
+    if (nslog_script == NULL) {
+        info_log(@"No Python NSLog handler found. stdout/stderr will not be captured.");
+        info_log(@"To capture stdout/stderr, add 'std-nslog' to your app dependencies.");
+    } else {
+        debug_log(@"Installing Python NSLog handler...");
+        FILE *fd = fopen(nslog_script, "r");
+        if (fd == NULL) {
+            crash_dialog(@"Unable to open nslog.py");
+            exit(-1);
+        }
+
+        ret = PyRun_SimpleFileEx(fd, nslog_script, 1);
+        fclose(fd);
+        if (ret != 0) {
+            crash_dialog(@"Unable to install Python NSLog handler");
+            exit(ret);
+        }
+    }
+}
 
 /**
  * Construct and display a modal dialog to the user that contains
@@ -298,7 +425,10 @@ int main(int argc, char *argv[]) {
  */
 void crash_dialog(NSString *details) {
     // Write the error to the log
-    NSLog(@"%@", details);
+    NSArray *lines = [details componentsSeparatedByString:@"\n"];
+    for (int i = 0; i < [lines count]; i++) {
+        NSLog(@"%@", lines[i]);
+    }
 
     // If there's an app module override, we're running in test mode; don't show error dialogs
     if (getenv("BRIEFCASE_MAIN_MODULE")) {
@@ -337,61 +467,4 @@ void crash_dialog(NSString *details) {
     [alert runModal];
 }
 
-/**
- * Convert a Python traceback object into a user-suitable string, stripping off
- * stack context that comes from this stub binary.
- *
- * If any error occurs processing the traceback, the error message returned
- * will describe the mode of failure.
- */
-NSString *format_traceback(PyObject *type, PyObject *value, PyObject *traceback) {
-    NSRegularExpression *regex;
-    NSString *traceback_str;
-    PyObject *traceback_list;
-    PyObject *traceback_module;
-    PyObject *format_exception;
-    PyObject *traceback_unicode;
-    PyObject *inner_traceback;
-
-    // Drop the top two stack frames; these are internal
-    // wrapper logic, and not in the control of the user.
-    for (int i = 0; i < 2; i++) {
-        inner_traceback = PyObject_GetAttrString(traceback, "tb_next");
-        if (inner_traceback != NULL) {
-            traceback = inner_traceback;
-        }
-    }
-
-    // Format the traceback.
-    traceback_module = PyImport_ImportModule("traceback");
-    if (traceback_module == NULL) {
-        NSLog(@"Could not import traceback");
-        return @"Could not import traceback";
-    }
-
-    format_exception = PyObject_GetAttrString(traceback_module, "format_exception");
-    if (format_exception && PyCallable_Check(format_exception)) {
-        traceback_list = PyObject_CallFunctionObjArgs(format_exception, type, value, traceback, NULL);
-    } else {
-        NSLog(@"Could not find 'format_exception' in 'traceback' module");
-        return @"Could not find 'format_exception' in 'traceback' module";
-    }
-    if (traceback_list == NULL) {
-        NSLog(@"Could not format traceback");
-        return @"Could not format traceback";
-    }
-
-    traceback_unicode = PyUnicode_Join(PyUnicode_FromString(""), traceback_list);
-    traceback_str = [NSString stringWithUTF8String:PyUnicode_AsUTF8(PyObject_Str(traceback_unicode))];
-
-    // Take the opportunity to clean up the source path,
-    // so paths only refer to the "app local" path.
-    regex = [NSRegularExpression regularExpressionWithPattern:@"^  File \"/.*/(.*?).app/Contents/Resources/"
-                                                      options:NSRegularExpressionAnchorsMatchLines
-                                                        error:nil];
-    traceback_str = [regex stringByReplacingMatchesInString:traceback_str
-                                                    options:0
-                                                      range:NSMakeRange(0, [traceback_str length])
-                                               withTemplate:@"  File \"$1.app/Contents/Resources/"];
-    return traceback_str;
-}
+{% endif %}

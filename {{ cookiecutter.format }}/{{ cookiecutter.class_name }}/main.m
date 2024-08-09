@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
     NSBundle *mainBundle;
     NSString *resourcePath;
     NSString *frameworksPath;
+    NSString *python_tag;
     NSString *python_home;
     NSString *app_module_name;
     NSString *path;
@@ -86,7 +87,8 @@ int main(int argc, char *argv[]) {
         }
 
         // Set the home for the Python interpreter
-        python_home = [NSString stringWithFormat:@"%@/Python.framework/Versions/{{ cookiecutter.python_version|py_tag }}", frameworksPath, nil];
+        python_tag = @"{{ cookiecutter.python_version|py_tag }}";
+        python_home = [NSString stringWithFormat:@"%@/Python.framework/Versions/%@", frameworksPath, python_tag, nil];
         debug_log(@"PythonHome: %@", python_home);
         wtmp_str = Py_DecodeLocale([python_home UTF8String], NULL);
         status = PyConfig_SetString(&config, &config.home, wtmp_str);
@@ -130,7 +132,7 @@ int main(int argc, char *argv[]) {
         debug_log(@"PYTHONPATH:");
 
         // The unpacked form of the stdlib
-        path = [NSString stringWithFormat:@"%@/Python.framework/Versions/{{ cookiecutter.python_version|py_tag }}/lib/python{{ cookiecutter.python_version|py_tag }}", frameworksPath, nil];
+        path = [NSString stringWithFormat:@"%@/lib/python%@", python_home, python_tag, nil];
         debug_log(@"- %@", path);
         wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
@@ -142,7 +144,7 @@ int main(int argc, char *argv[]) {
         PyMem_RawFree(wtmp_str);
 
         // Add the stdlib binary modules path
-        path = [NSString stringWithFormat:@"%@/Python.framework/Versions/{{ cookiecutter.python_version|py_tag }}/lib/python{{ cookiecutter.python_version|py_tag }}/lib-dynload", frameworksPath, nil];
+        path = [NSString stringWithFormat:@"%@/lib/python%@/lib-dynload", python_home, python_tag, nil];
         debug_log(@"- %@", path);
         wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);

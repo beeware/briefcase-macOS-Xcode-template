@@ -61,7 +61,7 @@ jobs:
     - name: Upload build artefacts
       uses: actions/upload-artifact@v4.3.5
       with:
-        name: ${{ matrix.target }}-stubs
+        name: ${{ env.PYTHON_TAG }}-stubs
         path: stub/*.zip
 
     - name: Upload Release Asset to S3

@@ -84,7 +84,6 @@ jobs:
     - name: Get build artifacts
       uses: actions/download-artifact@v4.1.8
       with:
-        pattern: *-stubs
         path: dist
         merge-multiple: true
 
@@ -96,5 +95,7 @@ jobs:
         draft: true
         body: |
           Build ${{ github.ref }} of the Briefcase macOS stub binary.
+
+          Includes support for Python 3.9-3.13.
 
         artifacts: "dist/*"

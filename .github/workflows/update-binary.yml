@@ -37,10 +37,7 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        # TODO - Revert to the development version of Briefcase
-        # Use the development version of Briefcase
-        # python -m pip install git+https://github.com/beeware/briefcase.git
-        python -m pip install git+https://github.com/freakboy3742/briefcase.git@version-bumps
+        python -m pip install git+https://github.com/beeware/briefcase.git
 
     - name: Generate Xcode App Template
       run: |

@@ -11,14 +11,17 @@ jobs:
     strategy:
       matrix:
         python-version: [ "3.9", "3.10", "3.11", "3.12", "3.13-dev" ]
+    outputs:
+      BUILD_NUMBER: ${{ steps.build-vars.outputs.BUILD_NUMBER }}
 
     steps:
     - name: Set Build Variables
+      id: build-vars
       env:
         TAG_NAME: ${{ github.ref }}
       run: |
         export BUILD_NUMBER=$(basename $TAG_NAME)
-        export PYTHON_TAG=$(python -c "print('.'.join('${{ matrix.python-version }}'.split('.')[:2]))")
+        export PYTHON_TAG=$(python -c "print('${{ matrix.python-version }}'.split('-')[0]))")
 
         echo "PYTHON_TAG=${PYTHON_TAG}" | tee -a $GITHUB_ENV
         echo "BUILD_NUMBER=${BUILD_NUMBER}" | tee -a $GITHUB_ENV
@@ -90,11 +93,11 @@ jobs:
     - name: Create Release
       uses: ncipollo/release-action@v1.14.0
       with:
-        name: ${{ github.ref }}
-        tag: ${{ github.ref }}
+        name: ${{ jobs.build-stubs.outputs.BUILD_NUMBER }}
+        tag: ${{ jobs.build-stubs.outputs.BUILD_NUMBER }}
         draft: true
         body: |
-          Build ${{ github.ref }} of the Briefcase macOS stub binary.
+          Build ${{ jobs.build-stubs.outputs.BUILD_NUMBER }} of the Briefcase macOS stub binary.
 
           Includes support for Python 3.9-3.13.
 

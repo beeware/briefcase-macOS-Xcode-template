@@ -93,11 +93,11 @@ jobs:
     - name: Create Release
       uses: ncipollo/release-action@v1.14.0
       with:
-        name: ${{ jobs.build-stubs.outputs.BUILD_NUMBER }}
-        tag: ${{ jobs.build-stubs.outputs.BUILD_NUMBER }}
+        name: ${{ needs.build-stubs.outputs.BUILD_NUMBER }}
+        tag: ${{ needs.build-stubs.outputs.BUILD_NUMBER }}
         draft: true
         body: |
-          Build ${{ jobs.build-stubs.outputs.BUILD_NUMBER }} of the Briefcase macOS stub binary.
+          Build ${{ needs.build-stubs.outputs.BUILD_NUMBER }} of the Briefcase macOS stub binary.
 
           Includes support for Python 3.9-3.13.
 

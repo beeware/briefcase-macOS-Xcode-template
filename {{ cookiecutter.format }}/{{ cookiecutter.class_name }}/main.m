@@ -5,7 +5,7 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 #import <Cocoa/Cocoa.h>
-#include <Python.h>
+#import <Python/Python.h>
 #include <dlfcn.h>
 #include <libgen.h>
 #include <mach-o/dyld.h>
@@ -32,6 +32,8 @@ int main(int argc, char *argv[]) {
     PyConfig config;
     NSBundle *mainBundle;
     NSString *resourcePath;
+    NSString *frameworksPath;
+    NSString *python_tag;
     NSString *python_home;
     NSString *app_module_name;
     NSString *path;
@@ -55,6 +57,7 @@ int main(int argc, char *argv[]) {
         // Set the resource path for the app
         mainBundle = get_main_bundle();
         resourcePath = [mainBundle resourcePath];
+        frameworksPath = [mainBundle privateFrameworksPath];
 
         // Generate an isolated Python configuration.
         debug_log(@"Configuring isolated Python...");
@@ -72,6 +75,8 @@ int main(int argc, char *argv[]) {
         config.write_bytecode = 0;
         // Isolated apps need to set the full PYTHONPATH manually.
         config.module_search_paths_set = 1;
+        // Enable verbose logging for debug purposes
+        // config.verbose = 1;
 
         debug_log(@"Pre-initializing Python runtime...");
         status = Py_PreInitialize(&preconfig);
@@ -82,7 +87,8 @@ int main(int argc, char *argv[]) {
         }
 
         // Set the home for the Python interpreter
-        python_home = [NSString stringWithFormat:@"%@/support/python-stdlib", resourcePath, nil];
+        python_tag = @"{{ cookiecutter.python_version|py_tag }}";
+        python_home = [NSString stringWithFormat:@"%@/Python.framework/Versions/%@", frameworksPath, python_tag, nil];
         debug_log(@"PythonHome: %@", python_home);
         wtmp_str = Py_DecodeLocale([python_home UTF8String], NULL);
         status = PyConfig_SetString(&config, &config.home, wtmp_str);
@@ -125,20 +131,8 @@ int main(int argc, char *argv[]) {
         // Set the full module path. This includes the stdlib, site-packages, and app code.
         debug_log(@"PYTHONPATH:");
 
-        // The .zip form of the stdlib
-        path = [NSString stringWithFormat:@"%@/support/python{{ cookiecutter.python_version|py_libtag }}.zip", resourcePath, nil];
-        debug_log(@"- %@", path);
-        wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
-        status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
-        if (PyStatus_Exception(status)) {
-            crash_dialog([NSString stringWithFormat:@"Unable to set .zip form of stdlib path: %s", status.err_msg, nil]);
-            PyConfig_Clear(&config);
-            Py_ExitStatusException(status);
-        }
-        PyMem_RawFree(wtmp_str);
-
         // The unpacked form of the stdlib
-        path = [NSString stringWithFormat:@"%@/support/python-stdlib", resourcePath, nil];
+        path = [NSString stringWithFormat:@"%@/lib/python%@", python_home, python_tag, nil];
         debug_log(@"- %@", path);
         wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
@@ -150,7 +144,7 @@ int main(int argc, char *argv[]) {
         PyMem_RawFree(wtmp_str);
 
         // Add the stdlib binary modules path
-        path = [NSString stringWithFormat:@"%@/support/python-stdlib/lib-dynload", resourcePath, nil];
+        path = [NSString stringWithFormat:@"%@/lib/python%@/lib-dynload", python_home, python_tag, nil];
         debug_log(@"- %@", path);
         wtmp_str = Py_DecodeLocale([path UTF8String], NULL);
         status = PyWideStringList_Append(&config.module_search_paths, wtmp_str);
@@ -400,6 +394,13 @@ NSBundle* get_main_bundle(void) {
 void setup_stdout(NSBundle *mainBundle) {
     int ret = 0;
     const char *nslog_script;
+
+    // If the app is running under Xcode 15 or later, we don't need to do anything,
+    // as stdout and stderr are automatically captured by the in-IDE console.
+    // See https://developer.apple.com/forums/thread/705868 for details.
+    if (getenv("IDE_DISABLED_OS_ACTIVITY_DT_MODE")) {
+        return;
+    }
 
     // Install the nslog script to redirect stdout/stderr if available.
     // Set the name of the python NSLog bootstrap script

@@ -2,3 +2,5 @@
 .python-version
 .vscode
 .idea
+stub/build
+stub/logs

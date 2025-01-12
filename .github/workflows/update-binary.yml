@@ -88,7 +88,7 @@ jobs:
         merge-multiple: true
 
     - name: Create Release
-      uses: ncipollo/release-action@v1.14.0
+      uses: ncipollo/release-action@v1.15.0
       with:
         name: ${{ needs.build-stubs.outputs.BUILD_NUMBER }}
         tag: ${{ needs.build-stubs.outputs.BUILD_NUMBER }}

@@ -252,9 +252,18 @@ int main(int argc, char *argv[]) {
                     if (systemExit_code == NULL) {
                         debug_log(@"Could not determine exit code");
                         ret = -10;
-                    }
-                    else {
+                    } else if (PyLong_Check(systemExit_code)) {
+                        // SystemExit with error code
                         ret = (int) PyLong_AsLong(systemExit_code);
+                    } else {
+                        // Convert exit code to a string. This is required by runpy._error
+                        ret = -11;
+                        info_log(@"---------------------------------------------------------------------------");
+                        info_log(@"Application quit abnormally!");
+
+                        // Display exit message in the crash dialog.
+                        traceback_str = [NSString stringWithUTF8String:PyUnicode_AsUTF8(PyObject_Str(systemExit_code))];
+                        crash_dialog(traceback_str);
                     }
                 } else {
                     // Non-SystemExit; likely an uncaught exception

@@ -19,6 +19,8 @@ support_path = "Support"
     "3.14": "support_revision = 5",
 }.get(cookiecutter.python_version|py_tag, "") }}
 cleanup_paths = [
+    "Support/Python.xcframework/**/python*/config-*-darwin",
+    "Support/Python.xcframework/**/pkgconfig",
 ]
 icon.16 = "{{ cookiecutter.class_name }}/Assets.xcassets/{{ cookiecutter.formal_name }}.appiconset/icon-16.png"
 icon.32 = "{{ cookiecutter.class_name }}/Assets.xcassets/{{ cookiecutter.formal_name }}.appiconset/icon-32.png"

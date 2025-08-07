@@ -10,7 +10,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        python-version: [ "3.9", "3.10", "3.11", "3.12", "3.13-dev" ]
+        python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
     outputs:
       BUILD_NUMBER: ${{ steps.build-vars.outputs.BUILD_NUMBER }}
 
@@ -33,6 +33,7 @@ jobs:
       uses: actions/setup-python@v5.6.0
       with:
         python-version: ${{ matrix.python-version }}
+        allow-prereleases: true
 
     - name: Install Dependencies
       run: |
@@ -96,6 +97,6 @@ jobs:
         body: |
           Build ${{ needs.build-stubs.outputs.BUILD_NUMBER }} of the Briefcase macOS stub binary.
 
-          Includes support for Python 3.9-3.13.
+          Includes support for Python 3.10-3.14.
 
         artifacts: "dist/*"

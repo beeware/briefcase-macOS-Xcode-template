@@ -83,7 +83,7 @@ jobs:
     needs: [ build-stubs ]
     steps:
     - name: Get build artifacts
-      uses: actions/download-artifact@v6.0.0
+      uses: actions/download-artifact@v7.0.0
       with:
         path: dist
         merge-multiple: true

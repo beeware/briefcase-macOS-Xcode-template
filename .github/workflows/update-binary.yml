@@ -60,7 +60,7 @@ jobs:
         ls -1 *.zip
 
     - name: Upload build artefacts
-      uses: actions/upload-artifact@v5.0.0
+      uses: actions/upload-artifact@v6.0.0
       with:
         name: ${{ env.PYTHON_TAG }}-stubs
         path: stub/*.zip

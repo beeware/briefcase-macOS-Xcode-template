@@ -31,7 +31,7 @@ jobs:
     uses: beeware/.github/.github/workflows/app-build-verify.yml@main
     with:
       python-version: ${{ matrix.python-version }}
-      runner-os: macos-26
+      runner-os: macos-15
       framework: ${{ matrix.framework }}
       target-platform: macOS
       target-format: Xcode
@@ -40,9 +40,7 @@ jobs:
       matrix:
         python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
         framework: [ "toga", "pyside6", "pygame", "console" ]
-        # Pygame and PySide6 haven't published 3.14 wheels yet.
+        # Pygame hasn't published 3.14 wheels yet.
         exclude:
-          - python-version: "3.14"
-            framework: pyside6
           - python-version: "3.14"
             framework: pygame

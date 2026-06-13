@@ -79,6 +79,10 @@ int main(int argc, char *argv[]) {
         config.write_bytecode = 0;
         // Isolated apps need to set the full PYTHONPATH manually.
         config.module_search_paths_set = 1;
+        {% if cookiecutter.python_version|minor_version >= 14 and not cookiecutter.console_app -%}
+        // Enable the use of the system logger
+        config.use_system_logger = 1;
+        {% endif -%}
         // Enable verbose logging for debug purposes
         // config.verbose = 1;
 
@@ -188,10 +192,6 @@ int main(int argc, char *argv[]) {
         }
 
         @try {
-            // Set up an stdout/stderr handling that is required
-            setup_stdout(mainBundle);
-
-
             // Adding the app_packages as site directory.
             //
             // This adds app_packages to sys.path and executes any .pth
@@ -232,6 +232,10 @@ int main(int argc, char *argv[]) {
                 exit(-15);
             }
 
+            {# if cookiecutter.python_version|minor_version < 14 and not cookiecutter.console_app -#}
+            // Set up any stdout/stderr handling that is required
+            setup_stdout(mainBundle);
+            {# endif -#}
 
             // Start the app module.
             //

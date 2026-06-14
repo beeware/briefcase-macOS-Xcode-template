@@ -2,7 +2,8 @@
 project_name = "Stub"
 bundle = "org.beeware"
 version = "1.0.0"
-license.file = "../LICENSE"
+license = "BSD-3-Clause"
+license-files = ["../LICENSE"]
 
 # Use the current state of this repo as the template.
 template = ".."

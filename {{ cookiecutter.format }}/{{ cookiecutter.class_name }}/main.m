@@ -232,10 +232,10 @@ int main(int argc, char *argv[]) {
                 exit(-15);
             }
 
-            {# if cookiecutter.python_version|minor_version < 14 and not cookiecutter.console_app -#}
+            {% if cookiecutter.python_version|minor_version < 14 and not cookiecutter.console_app -%}
             // Set up any stdout/stderr handling that is required
             setup_stdout(mainBundle);
-            {# endif -#}
+            {% endif -%}
 
             // Start the app module.
             //

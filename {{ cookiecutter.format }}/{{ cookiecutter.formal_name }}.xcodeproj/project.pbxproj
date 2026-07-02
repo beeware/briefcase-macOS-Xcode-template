@@ -14,8 +14,12 @@
 		0D354FEF2551C249009178D1 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D354FEE2551C249009178D1 /* Cocoa.framework */; };
 		0D7B44A82555E01500CBC44B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D7B44A72555E01500CBC44B /* Foundation.framework */; };
 		0D7B44DA2556C84100CBC44B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D354FD72551BFBD009178D1 /* main.m */; };
+{%- if cookiecutter.use_framework %}
 		6060E7722AF0B40500C04AE0 /* Python.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6060E76F2AF0B14D00C04AE0 /* Python.xcframework */; };
 		6060E7732AF0B40500C04AE0 /* Python.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6060E76F2AF0B14D00C04AE0 /* Python.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+{%- else %}
+		AA0000022AF0B40500C04AE0 /* libpython{{ cookiecutter.python_version|py_tag }}.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000012AF0B14D00C04AE0 /* libpython{{ cookiecutter.python_version|py_tag }}.dylib */; };
+{%- endif %}
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,6 +33,7 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+{%- if cookiecutter.use_framework %}
 		6060E7742AF0B40500C04AE0 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -40,6 +45,7 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+{%- endif %}
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -53,7 +59,11 @@
 		0D354FE52551C1E1009178D1 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		0D354FEE2551C249009178D1 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		0D7B44A72555E01500CBC44B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+{%- if cookiecutter.use_framework %}
 		6060E76F2AF0B14D00C04AE0 /* Python.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Python.xcframework; sourceTree = "<group>"; };
+{%- else %}
+		AA0000012AF0B14D00C04AE0 /* libpython{{ cookiecutter.python_version|py_tag }}.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpython{{ cookiecutter.python_version|py_tag }}.dylib; path = Python/lib/libpython{{ cookiecutter.python_version|py_tag }}.dylib; sourceTree = "<group>"; };
+{%- endif %}
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,7 +74,11 @@
 				0D354FE62551C1E1009178D1 /* AppKit.framework in Frameworks */,
 				0D354FEF2551C249009178D1 /* Cocoa.framework in Frameworks */,
 				0D7B44A82555E01500CBC44B /* Foundation.framework in Frameworks */,
+{%- if cookiecutter.use_framework %}
 				6060E7722AF0B40500C04AE0 /* Python.xcframework in Frameworks */,
+{%- else %}
+				AA0000022AF0B40500C04AE0 /* libpython{{ cookiecutter.python_version|py_tag }}.dylib in Frameworks */,
+{%- endif %}
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,7 +129,11 @@
 		60A04BBB28AF5E1000DAA9E5 /* Support */ = {
 			isa = PBXGroup;
 			children = (
+{%- if cookiecutter.use_framework %}
 				6060E76F2AF0B14D00C04AE0 /* Python.xcframework */,
+{%- else %}
+				AA0000012AF0B14D00C04AE0 /* libpython{{ cookiecutter.python_version|py_tag }}.dylib */,
+{%- endif %}
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -131,7 +149,11 @@
 				0D354FC52551BFBA009178D1 /* Frameworks */,
 				0D354FC62551BFBA009178D1 /* Resources */,
 				0D7B44EB2556C8B800CBC44B /* Embed Foundation Extensions */,
+{%- if cookiecutter.use_framework %}
 				6060E7742AF0B40500C04AE0 /* Embed Frameworks */,
+{%- else %}
+				AA0000032AF0B40500C04AE0 /* Embed Python lib */,
+{%- endif %}
 				60A04BC128AF640400DAA9E5 /* Sign Python Binary Modules */,
 			);
 			buildRules = (
@@ -150,7 +172,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1540;
+				LastUpgradeCheck = 2660;
 				ORGANIZATIONNAME = "{{ cookiecutter.author }}";
 				TargetAttributes = {
 					0D354FC72551BFBA009178D1 = {
@@ -190,6 +212,27 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+{%- if not cookiecutter.use_framework %}
+		AA0000032AF0B40500C04AE0 /* Embed Python lib */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Python lib";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\nDEST=\"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/python\"\necho \"Embedding Python lib into $DEST\"\nmkdir -p \"$DEST\"\n# Copy the entire lib/ tree, preserving symlinks. Exclude static archives\n# and pkgconfig metadata that are not needed at runtime.\nrsync -a --delete --copy-unsafe-links \\\n    --exclude='*.a' \\\n    --exclude='pkgconfig' \\\n    \"$PROJECT_DIR/Support/Python/lib/\" \"$DEST/lib/\"\n";
+		};
+{%- endif %}
 		60A04BC128AF640400DAA9E5 /* Sign Python Binary Modules */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -286,6 +329,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "{{ cookiecutter.formal_name }}";
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 			};
 			name = Debug;
 		};
@@ -345,6 +389,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "{{ cookiecutter.formal_name }}";
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 			};
 			name = Release;
 		};
@@ -363,17 +408,37 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+{%- if cookiecutter.use_framework %}
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(PROJECT_DIR)/Support\"",
 				);
+{%- else %}
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+{%- endif %}
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+{%- if cookiecutter.use_framework %}
 				HEADER_SEARCH_PATHS = "\"$(BUILT_PRODUCTS_DIR)/Python.framework/Headers\"";
+{%- else %}
+				HEADER_SEARCH_PATHS = "\"$(PROJECT_DIR)/Support/Python/include/python{{ cookiecutter.python_version|py_tag }}\"";
+{%- endif %}
 				INFOPLIST_FILE = "{{ cookiecutter.class_name }}/Info.plist";
+{%- if cookiecutter.use_framework %}
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+{%- else %}
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../Resources/python/lib",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(PROJECT_DIR)/Support/Python/lib\"",
+				);
+{%- endif %}
 				MACOSX_DEPLOYMENT_TARGET = {{ cookiecutter.min_os_version }};
 				PRODUCT_BUNDLE_IDENTIFIER = "{{ cookiecutter.bundle }}.{{ cookiecutter.app_name }}";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -396,17 +461,37 @@
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_TESTABILITY = YES;
+{%- if cookiecutter.use_framework %}
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(PROJECT_DIR)/Support\"",
 				);
+{%- else %}
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+{%- endif %}
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+{%- if cookiecutter.use_framework %}
 				HEADER_SEARCH_PATHS = "\"$(BUILT_PRODUCTS_DIR)/Python.framework/Headers\"";
+{%- else %}
+				HEADER_SEARCH_PATHS = "\"$(PROJECT_DIR)/Support/Python/include/python{{ cookiecutter.python_version|py_tag }}\"";
+{%- endif %}
 				INFOPLIST_FILE = "{{ cookiecutter.class_name }}/Info.plist";
+{%- if cookiecutter.use_framework %}
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+{%- else %}
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../Resources/python/lib",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(PROJECT_DIR)/Support/Python/lib\"",
+				);
+{%- endif %}
 				MACOSX_DEPLOYMENT_TARGET = {{ cookiecutter.min_os_version }};
 				PRODUCT_BUNDLE_IDENTIFIER = "{{ cookiecutter.bundle }}.{{ cookiecutter.app_name }}";
 			};

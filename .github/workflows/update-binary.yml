@@ -4,10 +4,14 @@ on:
     tags:
     - 'b*'
 
+permissions: {}
+
 jobs:
   build-stubs:
     name: Build stub binaries
     runs-on: macos-26
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -31,18 +35,20 @@ jobs:
         echo "STUB_PREFIX=${STUB_PREFIX}" | tee -a $GITHUB_ENV
 
     - name: Checkout Template
-      uses: actions/checkout@v6.0.3
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      with:
+        persist-credentials: false
 
     - name: Setup Python ${{ matrix.python-version }}
       if: ${{ matrix.framework }}
-      uses: actions/setup-python@v6.2.0
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
       with:
         python-version: ${{ matrix.python-version }}
         allow-prereleases: true
 
     - name: Setup Miniconda
       if: ${{ !matrix.framework }}
-      uses: conda-incubator/setup-miniconda@v3
+      uses: conda-incubator/setup-miniconda@8ee1f361103df19b6f8c8655fd3967a8ecb162d5  # v4.0.1
       with:
         python-version: ${{ matrix.python-version }}
         auto-update-conda: true
@@ -73,21 +79,21 @@ jobs:
         cd stub
         briefcase build macOS Xcode
 
-        echo "Build ${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }} ${{ !matrix.framework && 'non-framework' || 'framework' }} console stub artefact"
+        echo "Build ${PYTHON_TAG}-${BUILD_NUMBER} ${{ !matrix.framework && 'non-framework' || 'framework' }} console stub artefact"
         mv "./build/console-stub/macos/xcode/build/Release/Console Stub.app/Contents/MacOS/Console Stub" Stub
         codesign --remove-signature Stub
-        zip Console-${{ env.STUB_PREFIX }}Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip Stub
+        zip Console-${STUB_PREFIX}Stub-${PYTHON_TAG}-${BUILD_NUMBER}.zip Stub
 
-        echo "Build ${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }} ${{ !matrix.framework && 'non-framework' || 'framework' }} GUI stub artefact"
+        echo "Build ${PYTHON_TAG}-${BUILD_NUMBER} ${{ !matrix.framework && 'non-framework' || 'framework' }} GUI stub artefact"
         mv "./build/gui-stub/macos/xcode/build/Release/GUI Stub.app/Contents/MacOS/GUI Stub" Stub
         codesign --remove-signature Stub
-        zip GUI-${{ env.STUB_PREFIX }}Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip Stub
+        zip GUI-${STUB_PREFIX}Stub-${PYTHON_TAG}-${BUILD_NUMBER}.zip Stub
 
         echo "Stub binaries:"
         ls -1 *.zip
 
     - name: Upload build artefacts
-      uses: actions/upload-artifact@v7.0.1
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
       with:
         name: ${{ env.PYTHON_TAG }}-${{ env.STUB_PREFIX }}Stubs
         path: stub/*.zip
@@ -101,29 +107,29 @@ jobs:
         python -m pip install -U setuptools
         python -m pip install awscli
 
-        aws s3 cp stub/Console-${{ env.STUB_PREFIX }}Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip s3://briefcase-support/python/${{ env.PYTHON_TAG }}/macOS/Console-${{ env.STUB_PREFIX }}Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip
-        aws s3 cp stub/GUI-${{ env.STUB_PREFIX }}Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip s3://briefcase-support/python/${{ env.PYTHON_TAG }}/macOS/GUI-${{ env.STUB_PREFIX }}Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip
+        aws s3 cp stub/Console-${STUB_PREFIX}Stub-${PYTHON_TAG}-${BUILD_NUMBER}.zip s3://briefcase-support/python/${PYTHON_TAG}/macOS/Console-${STUB_PREFIX}Stub-${PYTHON_TAG}-${BUILD_NUMBER}.zip
+        aws s3 cp stub/GUI-${STUB_PREFIX}Stub-${PYTHON_TAG}-${BUILD_NUMBER}.zip s3://briefcase-support/python/${PYTHON_TAG}/macOS/GUI-${STUB_PREFIX}Stub-${PYTHON_TAG}-${BUILD_NUMBER}.zip
 
   make-release:
     name: Make Release
     runs-on: macOS-latest
     needs: [ build-stubs ]
+    permissions:
+      contents: write
     steps:
     - name: Get build artifacts
-      uses: actions/download-artifact@v8.0.1
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
       with:
         path: dist
         merge-multiple: true
 
     - name: Create Release
-      uses: ncipollo/release-action@v1.21.0
-      with:
-        name: ${{ needs.build-stubs.outputs.BUILD_NUMBER }}
-        tag: ${{ needs.build-stubs.outputs.BUILD_NUMBER }}
-        draft: true
-        body: |
-          Build ${{ needs.build-stubs.outputs.BUILD_NUMBER }} of the Briefcase macOS stub binary.
-
-          Includes support for Python 3.10-3.14.
-
-        artifacts: "dist/*"
+      env:
+        GH_TOKEN: ${{ github.token }}
+        BUILD_NUMBER: ${{ needs.build-stubs.outputs.BUILD_NUMBER }}
+      run: |
+        gh release create "${BUILD_NUMBER}" dist/* \
+          --repo "${GITHUB_REPOSITORY}" \
+          --title "${BUILD_NUMBER}" \
+          --draft \
+          --notes "$(printf 'Build %s of the Briefcase macOS stub binary.\n\nIncludes support for Python 3.10-3.14.\n' "${BUILD_NUMBER}")"

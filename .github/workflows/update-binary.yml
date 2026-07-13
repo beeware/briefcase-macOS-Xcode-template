@@ -24,7 +24,7 @@ jobs:
       run: |
         export BUILD_NUMBER=$(basename $TAG_NAME)
         export PYTHON_TAG=$(python -c "print('${{ matrix.python-version }}'.split('-')[0])")
-        export STUB_PREFIX=${{ matrix.framework && 'L' || '' }}
+        export STUB_PREFIX=${{ !matrix.framework && 'L' || '' }}
 
         echo "PYTHON_TAG=${PYTHON_TAG}" | tee -a $GITHUB_ENV
         echo "BUILD_NUMBER=${BUILD_NUMBER}" | tee -a $GITHUB_ENV
@@ -54,11 +54,24 @@ jobs:
         # TEMP: use the WIP branch to build
         python -m pip install git+https://github.com/freakboy3742/briefcase.git@alt-env-support
 
-    - name: Generate Xcode App Template
+    - name: Generate Framework stub app
+      if: ${{ !matrix.framework }}
       run: |
         # Generate the stub app
         cd stub
-        briefcase create macOS Xcode -C env_manager=\"${{ !matrix.framework && 'conda' || 'pip' }}\"
+        briefcase create macOS Xcode
+
+    - name: Create Non-framework stub app
+      if: ${{ !matrix.framework }}
+      run: |
+        # Generate the stub app
+        cd stub
+        briefcase create macOS Xcode -C env_manager=\"conda\" -C universal_build=false
+
+    - name: Build Stub App
+      run: |
+        # Generate the stub app
+        cd stub
         briefcase build macOS Xcode
 
         echo "Build ${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }} ${{ !matrix.framework && 'non-framework' || 'framework' }} console stub artefact"

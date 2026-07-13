@@ -57,7 +57,7 @@ jobs:
       run: |
         # Generate the stub app
         cd stub
-        briefcase create macOS Xcode -C env_manager=${{ !matrix.framework && 'conda' || 'pip' }}
+        briefcase create macOS Xcode -C env_manager=\"${{ !matrix.framework && 'conda' || 'pip' }}\"
         briefcase build macOS Xcode
 
         echo "Build ${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }} ${{ !matrix.framework && 'non-framework' || 'framework' }} console stub artefact"

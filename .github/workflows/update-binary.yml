@@ -74,14 +74,14 @@ jobs:
         briefcase build macOS Xcode
 
         echo "Build ${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }} ${{ !matrix.framework && 'non-framework' || 'framework' }} console stub artefact"
-        mv "./build/console-stub/macos/xcode/build/Release/Console Stub.app/Contents/MacOS/Console Stub" ${{ env.STUB_PREFIX }}Stub
-        codesign --remove-signature ${{ env.STUB_PREFIX }}Stub
-        zip Console-${{ env.STUB_PREFIX }}Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip ${{ env.STUB_PREFIX }}Stub
+        mv "./build/console-stub/macos/xcode/build/Release/Console Stub.app/Contents/MacOS/Console Stub" Stub
+        codesign --remove-signature Stub
+        zip Console-${{ env.STUB_PREFIX }}Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip Stub
 
         echo "Build ${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }} ${{ !matrix.framework && 'non-framework' || 'framework' }} GUI stub artefact"
-        mv "./build/gui-stub/macos/xcode/build/Release/GUI Stub.app/Contents/MacOS/GUI Stub" ${{ env.STUB_PREFIX }}Stub
-        codesign --remove-signature ${{ env.STUB_PREFIX }}Stub
-        zip GUI-${{ env.STUB_PREFIX }}Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip ${{ env.STUB_PREFIX }}Stub
+        mv "./build/gui-stub/macos/xcode/build/Release/GUI Stub.app/Contents/MacOS/GUI Stub" Stub
+        codesign --remove-signature Stub
+        zip GUI-${{ env.STUB_PREFIX }}Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip Stub
 
         echo "Stub binaries:"
         ls -1 *.zip

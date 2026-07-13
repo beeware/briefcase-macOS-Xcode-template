@@ -23,7 +23,7 @@ jobs:
       run: |
         export BUILD_NUMBER=$(basename $TAG_NAME)
         export PYTHON_TAG=$(python -c "print('${{ matrix.python-version }}'.split('-')[0])")
-        export STUB_PREFIX=${{ matrix.framework && "L" else "" }}
+        export STUB_PREFIX=${{ matrix.framework && 'L' || '' }}
 
         echo "PYTHON_TAG=${PYTHON_TAG}" | tee -a $GITHUB_ENV
         echo "BUILD_NUMBER=${BUILD_NUMBER}" | tee -a $GITHUB_ENV
@@ -57,15 +57,15 @@ jobs:
       run: |
         # Generate the stub app
         cd stub
-        briefcase create macOS Xcode -C env_manager=${{ !matrix.framework && "conda" || "pip" }}
+        briefcase create macOS Xcode -C env_manager=${{ !matrix.framework && 'conda' || 'pip' }}
         briefcase build macOS Xcode
 
-        echo "Build ${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }} ${{ !matrix.framework && "non-framework" || "framework" }} console stub artefact"
+        echo "Build ${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }} ${{ !matrix.framework && 'non-framework' || 'framework' }} console stub artefact"
         mv "./build/console-stub/macos/xcode/build/Release/Console Stub.app/Contents/MacOS/Console Stub" ${{ env.STUB_PREFIX }}Stub
         codesign --remove-signature ${{ env.STUB_PREFIX }}Stub
         zip Console-${{ env.STUB_PREFIX }}Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip ${{ env.STUB_PREFIX }}Stub
 
-        echo "Build ${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }} ${{ !matrix.framework && "non-framework" || "framework" }} GUI stub artefact"
+        echo "Build ${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }} ${{ !matrix.framework && 'non-framework' || 'framework' }} GUI stub artefact"
         mv "./build/gui-stub/macos/xcode/build/Release/GUI Stub.app/Contents/MacOS/GUI Stub" ${{ env.STUB_PREFIX }}Stub
         codesign --remove-signature ${{ env.STUB_PREFIX }}Stub
         zip GUI-${{ env.STUB_PREFIX }}Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip ${{ env.STUB_PREFIX }}Stub

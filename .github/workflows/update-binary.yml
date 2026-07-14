@@ -115,7 +115,7 @@ jobs:
 
   make-release:
     name: Make Release
-    runs-on: macOS-latest
+    runs-on: macos-26
     needs: [ build-stubs ]
     permissions:
       contents: write

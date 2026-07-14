@@ -24,6 +24,8 @@ jobs:
   pre-commit:
     name: Pre-commit checks
     uses: beeware/.github/.github/workflows/pre-commit-run.yml@741cc5a311012ee0ee195938889a337449d01eeb  # main
+    permissions:
+      contents: read
     with:
       pre-commit-source: pre-commit
 

@@ -4,11 +4,14 @@ on:
     tags:
     - 'b*'
 
+permissions: {}
+
 jobs:
   build-stubs:
     name: Build stub binaries
     runs-on: macos-26
     strategy:
+      fail-fast: false
       matrix:
         python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
     outputs:
@@ -26,11 +29,16 @@ jobs:
         echo "PYTHON_TAG=${PYTHON_TAG}" | tee -a $GITHUB_ENV
         echo "BUILD_NUMBER=${BUILD_NUMBER}" | tee -a $GITHUB_ENV
 
+        # Expose BUILD_NUMBER as a step output so it can be consumed as a job output
+        echo "BUILD_NUMBER=${BUILD_NUMBER}" | tee -a $GITHUB_OUTPUT
+
     - name: Checkout Template
-      uses: actions/checkout@v7.0.0
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      with:
+        persist-credentials: false
 
     - name: Setup Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v6.3.0
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
       with:
         python-version: ${{ matrix.python-version }}
         allow-prereleases: true
@@ -46,21 +54,21 @@ jobs:
         cd stub
         briefcase build macOS Xcode
 
-        echo "Build ${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }} console stub artefact"
+        echo "Build ${PYTHON_TAG}-${BUILD_NUMBER} console stub artefact"
         mv "./build/console-stub/macos/xcode/build/Release/Console Stub.app/Contents/MacOS/Console Stub" Stub
         codesign --remove-signature Stub
-        zip Console-Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip Stub
+        zip Console-Stub-${PYTHON_TAG}-${BUILD_NUMBER}.zip Stub
 
-        echo "Build ${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }} GUI stub artefact"
+        echo "Build ${PYTHON_TAG}-${BUILD_NUMBER} GUI stub artefact"
         mv "./build/gui-stub/macos/xcode/build/Release/GUI Stub.app/Contents/MacOS/GUI Stub" Stub
         codesign --remove-signature Stub
-        zip GUI-Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip Stub
+        zip GUI-Stub-${PYTHON_TAG}-${BUILD_NUMBER}.zip Stub
 
         echo "Stub binaries:"
         ls -1 *.zip
 
     - name: Upload build artefacts
-      uses: actions/upload-artifact@v7.0.1
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
       with:
         name: ${{ env.PYTHON_TAG }}-stubs
         path: stub/*.zip
@@ -74,29 +82,31 @@ jobs:
         python -m pip install -U setuptools
         python -m pip install awscli
 
-        aws s3 cp stub/Console-Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip s3://briefcase-support/python/${{ env.PYTHON_TAG }}/macOS/Console-Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip
-        aws s3 cp stub/GUI-Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip s3://briefcase-support/python/${{ env.PYTHON_TAG }}/macOS/GUI-Stub-${{ env.PYTHON_TAG }}-${{ env.BUILD_NUMBER }}.zip
+        aws s3 cp stub/Console-Stub-${PYTHON_TAG}-${BUILD_NUMBER}.zip s3://briefcase-support/python/${PYTHON_TAG}/macOS/Console-Stub-${PYTHON_TAG}-${BUILD_NUMBER}.zip
+        aws s3 cp stub/GUI-Stub-${PYTHON_TAG}-${BUILD_NUMBER}.zip s3://briefcase-support/python/${PYTHON_TAG}/macOS/GUI-Stub-${PYTHON_TAG}-${BUILD_NUMBER}.zip
 
   make-release:
     name: Make Release
-    runs-on: macOS-latest
+    runs-on: macos-26
     needs: [ build-stubs ]
+    permissions:
+      contents: write
     steps:
     - name: Get build artifacts
-      uses: actions/download-artifact@v8.0.1
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
       with:
         path: dist
         merge-multiple: true
 
     - name: Create Release
-      uses: ncipollo/release-action@v1.21.0
-      with:
-        name: ${{ needs.build-stubs.outputs.BUILD_NUMBER }}
-        tag: ${{ needs.build-stubs.outputs.BUILD_NUMBER }}
-        draft: true
-        body: |
-          Build ${{ needs.build-stubs.outputs.BUILD_NUMBER }} of the Briefcase macOS stub binary.
-
-          Includes support for Python 3.10-3.14.
-
-        artifacts: "dist/*"
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+        BUILD_NUMBER: ${{ needs.build-stubs.outputs.BUILD_NUMBER }}
+      run: |
+        gh release create "${BUILD_NUMBER}" \
+          --title "${BUILD_NUMBER}" \
+          --notes "$(printf 'Build %s of the Briefcase macOS stub binary.\n\nIncludes support for Python 3.10-3.14.\n' "${BUILD_NUMBER}")" \
+          --draft \
+          --verify-tag \
+          dist/*

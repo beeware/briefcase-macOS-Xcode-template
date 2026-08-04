@@ -5,7 +5,11 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 #import <Cocoa/Cocoa.h>
+{%- if cookiecutter.use_framework %}
 #import <Python/Python.h>
+{%- else %}
+#import <Python.h>
+{%- endif %}
 #include <dlfcn.h>
 #include <libgen.h>
 #include <mach-o/dyld.h>
@@ -96,7 +100,11 @@ int main(int argc, char *argv[]) {
 
         // Set the home for the Python interpreter
         python_tag = @"{{ cookiecutter.python_version|py_tag }}";
+{%- if cookiecutter.use_framework %}
         python_home = [NSString stringWithFormat:@"%@/Python.framework/Versions/%@", frameworksPath, python_tag, nil];
+{%- else %}
+        python_home = [NSString stringWithFormat:@"%@/python/", resourcePath, nil];
+{%- endif %}
         debug_log(@"PythonHome: %@", python_home);
         wtmp_str = Py_DecodeLocale([python_home UTF8String], NULL);
         status = PyConfig_SetString(&config, &config.home, wtmp_str);

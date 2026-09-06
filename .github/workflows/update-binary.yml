@@ -15,6 +15,10 @@ jobs:
       matrix:
         python-version: [ "3.11", "3.12", "3.13", "3.14", "3.15" ]
         framework: [true, false]
+        exclude:
+          # Miniconda doesn't publish 3.15 yet.
+          - python-version: "3.15"
+            framework: false
     outputs:
       BUILD_NUMBER: ${{ steps.build-vars.outputs.BUILD_NUMBER }}
 

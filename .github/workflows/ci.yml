@@ -35,7 +35,7 @@ jobs:
       contents: read
     with:
       python-version: ${{ matrix.python-version }}
-      runner-os: macos-15
+      runner-os: macos-26
       framework: ${{ matrix.framework }}
       target-platform: macOS
       target-format: Xcode

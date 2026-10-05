@@ -248,18 +248,24 @@ int main(int argc, char *argv[]) {
             {% endif -%}
 
             // Point sys.executable at bin/python3 so that the app can start Python subprocesses.
+            // If the executable doesn't exist, clear sys.executable so that subprocesses
+            // trying to use sys.executable can't fork-bomb the app.
             path = [python_home stringByAppendingPathComponent:@"bin/python3"];
             if ([[NSFileManager defaultManager] isExecutableFileAtPath:path]) {
                 debug_log(@"Setting sys.executable: %@", path);
                 module_attr = PyUnicode_FromString([path UTF8String]);
-                if (module_attr == NULL
-                    || PySys_SetObject("executable", module_attr) < 0
-                    || PySys_SetObject("_base_executable", module_attr) < 0) {
-                    crash_dialog(@"Could not set sys.executable");
-                    exit(-16);
-                }
-                Py_DECREF(module_attr);
+            } else {
+                debug_log(@"Clearing sys.executable");
+                module_attr = PyUnicode_FromString("");
             }
+
+            if (module_attr == NULL
+                || PySys_SetObject("executable", module_attr) < 0
+                || PySys_SetObject("_base_executable", module_attr) < 0) {
+                crash_dialog(@"Could not set sys.executable");
+                exit(-16);
+            }
+            Py_DECREF(module_attr);
 
             // Start the app module.
             //

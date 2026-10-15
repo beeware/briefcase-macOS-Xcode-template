@@ -28,7 +28,12 @@ support_path = "Support"
 cleanup_paths = [
     "Support/Python.xcframework/**/python*/config-*-darwin",
     "Support/Python.xcframework/**/pkgconfig",
+    {% if not cookiecutter.allow_subprocesses -%}
+    "Support/Python.xcframework/**/Python.framework/Versions/3.*/bin",
+    "Support/Python.xcframework/**/Python.framework/Versions/3.*/Resources/Python.app",
+    {% endif -%}
 ]
+
 icon.16 = "{{ cookiecutter.class_name }}/Assets.xcassets/{{ cookiecutter.formal_name }}.appiconset/icon-16.png"
 icon.32 = "{{ cookiecutter.class_name }}/Assets.xcassets/{{ cookiecutter.formal_name }}.appiconset/icon-32.png"
 icon.64 = "{{ cookiecutter.class_name }}/Assets.xcassets/{{ cookiecutter.formal_name }}.appiconset/icon-64.png"

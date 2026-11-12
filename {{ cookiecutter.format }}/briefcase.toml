@@ -16,6 +16,7 @@ support_path = "Support"
     "3.13": 'support_revision = "18"',
     "3.14": 'support_revision = "14"',
     "3.15": 'support_revision = "3"',
+    "3.16": 'support_revision = "0a2"',
 }.get(cookiecutter.python_version|py_tag, "") }}
 {{ {
     "3.11": 'support_package_hash = "sha256:45a5b71b76b76692a6ebec0bc5735dd816ddf7aea65c180956682082013f3d0b"',
@@ -23,6 +24,7 @@ support_path = "Support"
     "3.13": 'support_package_hash = "sha256:61971e9dc3258c76033ef800412989ec92e14cf0653f2a19e006d167d5a1436c"',
     "3.14": 'support_package_hash = "sha256:4475ee12ea9e4bcba8bc2a74c9ab9c179bb240bb84d46eb4523dbc05c7d00d72"',
     "3.15": 'support_package_hash = "sha256:9e055c5f977f7e6195ba78acab38982e738dc0fd02102ad5051f5d3168ae1a8d"',
+    "3.16": 'support_package_hash = "sha256:f302e55999a27f05ea0364c2cf87bdf030338783744e8394da9be1df3ef4474d"',
 }.get(cookiecutter.python_version|py_tag, "") }}
 
 cleanup_paths = [

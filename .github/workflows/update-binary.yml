@@ -22,7 +22,9 @@ jobs:
         python-version: [ "3.11", "3.12", "3.13", "3.14", "3.15", "3.16" ]
         framework: [true, false]
         exclude:
-          # Miniconda doesn't publish 3.16 yet.
+          # Miniconda doesn't publish 3.15 or 3.16 yet.
+          - python-version: "3.15"
+            framework: false
           - python-version: "3.16"
             framework: false
     outputs:
@@ -81,7 +83,7 @@ jobs:
       run: |
         # Generate the stub app
         cd stub
-        briefcase create macOS Xcode -C env_manager=\"conda\" -C universal_build=false
+        briefcase create macOS Xcode -C env_manager=\"conda\" -C universal_build=false -C min_os_version=\"12.1\"
 
     - name: Build Stub App
       run: |

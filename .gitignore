@@ -3,5 +3,6 @@
 .vscode
 .idea
 .rumdl_cache
+stub/.briefcase
 stub/build
 stub/logs
